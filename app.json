@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "IOU-Poker",
-    "slug": "IOU-Poker",
+    "name": "iou-poker",
+    "slug": "iou-poker",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
