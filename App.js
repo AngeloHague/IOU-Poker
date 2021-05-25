@@ -1,21 +1,42 @@
-import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { createAppContainer, createSwitchNavigation, createSwitchNavigator } from 'react-navigation'
+import { createStackNavigator } from 'react-navigation-stack'
+import LoadingScreen from './screens/LoadingScreen'
+import LoginScreen from './screens/LoginScreen'
+import RegisterScreen from './screens/RegisterScreen'
+import HomeScreen from './screens/HomeScreen'
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+import * as firebase from 'firebase'
+
+var firebaseConfig = {
+  apiKey: "AIzaSyBnoXWzm92fEYcR5nEJYVSEt8rP3WfxVvk",
+  authDomain: "iou-poker-development.firebaseapp.com",
+  projectId: "iou-poker-development",
+  storageBucket: "iou-poker-development.appspot.com",
+  messagingSenderId: "308689079238",
+  appId: "1:308689079238:web:a9569a7579258c5d2740c7"
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+firebase
+  .initializeApp(firebaseConfig)
+
+const AppStack = createStackNavigator({
+  Home: HomeScreen
+})
+
+const AuthStack = createStackNavigator({
+  Login: LoginScreen,
+  Register: RegisterScreen
+})
+
+export default createAppContainer(
+  createSwitchNavigator(
+    {
+      Loading: LoadingScreen,
+      App: AppStack,
+      Auth: AuthStack
+    },
+    {
+      initialRouteName: "Loading"
+    }
+  )
+)
