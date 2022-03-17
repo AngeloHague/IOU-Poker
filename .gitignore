@@ -1,13 +1,18 @@
-node_modules/
-.expo/
-npm-debug.*
-*.jks
-*.p8
-*.p12
-*.key
-*.mobileprovision
-*.orig.*
+# frontend
+frontend/node_modules/
+frontend/.expo/
+frontend/npm-debug.*
+frontend/*.jks
+frontend/*.p8
+frontend/*.p12
+frontend/*.key
+frontend/*.mobileprovision
+frontend/*.orig.*
 web-build/
 
+# backend
+backend/node_modules/
+
 # macOS
-.DS_Store
+frontend/.DS_Store
+backend/.DS_Store
