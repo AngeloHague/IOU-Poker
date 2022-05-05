@@ -4,6 +4,7 @@ import { Schema, MapSchema, ArraySchema, Context, type, filter } from "@colyseus
 export class Card extends Schema {
 
   @type('string') owner: string
+  //@type('number') index: number
   @type('boolean') revealed: boolean = false
   
   @filter(function(
@@ -41,15 +42,16 @@ export class GameState extends Schema {
   //@type({map: Player}) active_players = new MapSchema<Player>()
   //@type(['string']) folded_players = new ArraySchema<Player>()
   @type('number') player_idx: number = 1
-  @type('string') stake: string
-  @type('number') amount: number
-  @type('number') chips: number
-  @type('number') b_blind: number
-  @type('number') s_blind: number
-  @type('string') dealer: string
-  @type('string') bb_player: string
-  @type('string') sb_player: string
-  @type('string') current_player: string
+  @type('string') stake: string           // game stake
+  @type('number') amount: number          // amount of stake
+  @type('number') chips: number           // # of chips each player gets
+  @type('number') b_blind: number         // min buy-in for big blind player
+  @type('number') s_blind: number         // min buy-in for small blind player
+  @type('string') dealer: string          // current dealer
+  @type('string') bb_player: string       // current big blind player
+  @type('string') sb_player: string       // current small blind player
+  @type('string') current_player: string  // current player
+  @type('string') current_uid: string     // current player's uid
   @type([Card]) community_cards = new  ArraySchema<Card>()
   @type('number') largest_bet: number
   @type('number') round_stage: number = 0 // 0 - hidden, 1 - flop, 2 - turn, 3 - river
@@ -161,7 +163,17 @@ const HAND_VALUE_MAP = ([
 
 export function findBestHand(communityCards: Card[], playerHand: Card[]) {
   let bestHand = 0
-  let cards = communityCards.concat(playerHand)
+  let cards: Card[] = []
+  let values: String[] = []
+  communityCards.forEach(card => {
+    cards.push(card)
+    values.push(card.value)
+  });
+  playerHand.forEach(card => {
+    cards.push(card)
+    values.push(card.value)
+  });
+  console.log('Finding best hand: ', values)
   if (isFlush(cards)) {
     // check for straight flush
     if (isStraight(cards)) {
@@ -174,13 +186,17 @@ export function findBestHand(communityCards: Card[], playerHand: Card[]) {
     } else {
       bestHand = 6
     }
-  } else if (isFourOfAKind(cards)) bestHand = 8
-  else if (isFullHouse(cards)) bestHand = 7
-  else if (isStraight(cards)) bestHand = 5
-  else if (isThreeOfAKind(cards)) bestHand = 4
-  else if (countPairs(cards) == 2) bestHand = 3
-  else if (countPairs(cards) == 1) bestHand = 2
-  else bestHand = 1
+  //} else if (isFourOfAKind(cards)) bestHand = 8
+  } else {
+    let check = checkForDuplicates(cards)
+    if (check === 5) bestHand = 8             // Four of Kind
+    else if (check === 4) bestHand = 7        // Full House
+    else if (isStraight(cards)) bestHand = 5  // Straight
+    else if (check === 3) bestHand = 4        // Three of a Kind
+    else if (check === 2) bestHand = 3        // Two pair
+    else if (check === 1) bestHand = 2        // pair
+    else bestHand = 1                         // High Card
+  }
   return bestHand
 }
 
@@ -208,17 +224,18 @@ function isFlush(cards: Card[]) {
         break
     }
   });
-
+  
+  console.log('Checking for flush: %s Clubs, %s Diamonds, %s Hearts, %s Spades', clubs, diamonds, hearts, spades)
   if (clubs == 5 || diamonds == 5 || hearts == 5 || spades == 5 ) return true
   else return false
 }
 
 function isStraight(cards: Card[]) {
-  let values: number[]
+  let values: number[] = []
   cards.forEach((card) => {
     const details = card.value.split('',2)
-    let value: string = details[0]
-    values.push(CARD_VALUE_MAP.get(value))
+    let value: number = CARD_VALUE_MAP.get(details[0])
+    values.push(value)
   });
   values.sort(function(a, b){return a-b})
   let previousValue: number = null
@@ -227,6 +244,7 @@ function isStraight(cards: Card[]) {
       previousValue = value
     } else {
       if (value != previousValue+1) {
+        console.log('Not a straight: ', values)
         return false
       }
     }
@@ -235,39 +253,125 @@ function isStraight(cards: Card[]) {
 }
 
 function isRoyal(cards: Card[]) {
-  let values: number[]
+  let values: number[] = []
   cards.forEach((card) => {
     const details = card.value.split('',2)
-    let value: string = details[0]
-    values.push(CARD_VALUE_MAP.get(value))
+    let value: number = CARD_VALUE_MAP.get(details[0])
+    values.push(value)
+    // let value: string = details[0]
+    // values.push(Number(CARD_VALUE_MAP.get(value)))
   });
   let sum = values.reduce((a,b) => a + b, 0)
   if (sum == 60) {
     return true
   } else {
+    console.log('Not a Royal Flush: Toal of %s < 60', sum)
     return false
   }
 }
 
-function isStraightFlush(cards: Card[]) {
-  cards.forEach((card) => {
-    const details = card.value.split('',2)
-    let value: string = details[0]
-  });
+// function isFourOfAKind(cards: Card[]) {
+//   let counts: number[]
+//   cards.forEach((card) => {
+//     const details = card.value.split('',2)
+//     let value: string = details[0]
+//     let num: number = Number(CARD_VALUE_MAP.get(value))
+//     //counts[num] = counts[num] ? counts[num] + 1 : 1;
+//     if(counts[num]) counts[num]+=1
+//     else counts[num]=1
+//   });
+//   console.log(counts)
+//   counts.forEach((num) => {
+//     if (num == 4) return true
+//   })
+//   return false
+// }
+
+// HELPER FUNCTIONS FOR CHECKING FOR 4 or 3 OF A KIND & PAIRS:
+// Counts occorrences of a value in an array
+const countOccurrences = (arr: any, val: any) => arr.reduce((a: any, v: any) => (v === val ? a + 1 : a), 0);
+// Finds unique values - can then be passed 
+const findUniques = (value: any, index: any, self: any) => {
+  return self.indexOf(value) === index
 }
 
 function isFourOfAKind(cards: Card[]) {
-  let counts: number[]
+  //let counts: number[] = [];
+  let values: number[] = [];
+  let highestCount = 0;
+
   cards.forEach((card) => {
     const details = card.value.split('',2)
     let value: string = details[0]
-    let num = CARD_VALUE_MAP.get(value)
-    counts[num] = counts[num] ? counts[num] + 1 : 1;
+    let num: number = Number(CARD_VALUE_MAP.get(value))
+    values.push(num)
+    //counts[num] = counts[num] ? counts[num] + 1 : 1;
+    // if(counts[num]) counts[num]+=1
+    // else counts[num]=1
   });
-  counts.forEach((num) => {
-    if (num == 4) return true
+  values.forEach((value) => {
+    //counts.push(countOccurrences(values, value))
+    let count = countOccurrences(values, value)
+    highestCount = count > highestCount ? count : highestCount
   })
-  return false
+  console.log('Highest count: ', highestCount)
+  if (highestCount === 4) return true
+  else return false
+  // counts.forEach((num) => {
+  //   if (num == 4) return true
+  // })
+  // return false
+}
+
+function checkForDuplicates(cards: Card[]) {
+  //let counts: number[] = [];
+  let values: number[] = [];
+  let counts: any[] = []
+
+  cards.forEach((card) => {
+    const details = card.value.split('',2)
+    let value: string = details[0]
+    let num: number = Number(CARD_VALUE_MAP.get(value))
+    values.push(num)
+  });
+
+  let uniques = values.filter(findUniques)
+  console.log('Unique values: ', uniques)
+
+  uniques.forEach((value) => {
+    //counts.push(countOccurrences(values, value))
+    let count = {
+      value: value,
+      count: countOccurrences(values, value)
+    }
+    counts.push(count)
+    console.log('%s occurences of %s ', count.count, count.value)
+  })
+  // Sort highest to lowest
+  counts.sort((a, b) => (a.value > b.value) ? -1 : 1)
+  console.log(counts)
+  let threeOfAKind = false;
+  let pairs = 0;
+
+  counts.forEach((count) => {
+    if (count.count === 4) {
+      console.log('4 of a kind')
+        return 5
+    } else if (count.count === 3) {
+        console.log('3 of a kind')
+        threeOfAKind = true;
+    }
+      else if (count.count === 2) {
+        pairs+=1
+    }
+  })
+  if (threeOfAKind && pairs===1) {
+    console.log('FULL HOUSE')
+    return 4
+  } else if (threeOfAKind) return 3
+  else if (pairs===2) return 2
+  else if (pairs===1) return 1
+  else return 0
 }
 
 function isFullHouse(cards: Card[]) {

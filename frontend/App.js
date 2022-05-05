@@ -16,14 +16,14 @@ import * as firebase from 'firebase'
 import React from 'react'
 import { View } from 'react-native'
 
-const host = 'ws://192.168.0.10:3000'
+const host = 'ws://192.168.0.101:3000'
 global.client = new Colyseus.Client(host)
 
 var firebaseConfig = {
   apiKey: "AIzaSyBnoXWzm92fEYcR5nEJYVSEt8rP3WfxVvk",
   authDomain: "iou-poker-development.firebaseapp.com",
   projectId: "iou-poker-development",
-  storageBucket: "iou-poker-development.appspot.com",
+  storageBucket: "iou-poker-development.appspot.com", 
   messagingSenderId: "308689079238",
   appId: "1:308689079238:web:a9569a7579258c5d2740c7"
 }

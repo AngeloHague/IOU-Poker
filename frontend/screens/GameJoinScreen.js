@@ -73,6 +73,7 @@ export default class GameJoinScreen extends Component {
                                 style={common.input}
                                 placeholder=' -   -   -   -'
                                 autoCapitalize='characters'
+                                textContentType='oneTimeCode'
                                 onChangeText={join_code => this.setState({ join_code })}
                                 value={this.state.join_code}
                             />
