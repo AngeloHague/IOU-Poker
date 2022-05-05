@@ -5,6 +5,7 @@ import { newDeck, shuffle, drawCard } from '../components/cards'
 //import { Player } from '../components/player'
 import firebase from 'firebase'
 import { TabRouter } from 'react-navigation'
+import { styles } from '../styles/lobby'
 
 const io = require('socket.io-client');
 
@@ -130,25 +131,3 @@ export default class Game extends Component {
         )
     }
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1
-    },
-    game: {
-        marginTop: 48,
-        marginBottom: 48,
-        marginHorizontal: 30,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    button: {
-        marginHorizontal: 30,
-        marginVertical: 10,
-        backgroundColor: '#E9446A',
-        borderRadius: 4,
-        height: 52,
-        alignItems: 'center',
-        justifyContent: 'center'
-    }
-})

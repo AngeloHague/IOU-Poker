@@ -1,10 +1,13 @@
 import React, { Component } from 'react'
-import { Text, TextInput, TouchableOpacity, StyleSheet, View, KeyboardAvoidingView, Image } from 'react-native'
+import { Text, TextInput, TouchableOpacity, View, KeyboardAvoidingView, Image } from 'react-native'
 import firebase from 'firebase/app'
 import 'firebase/auth'
 import { ScrollView } from 'react-native-gesture-handler'
 import Carousel, { Pagination } from 'react-native-snap-carousel'
 import common from '../styles/common'
+import { renderPlayers, playerAction, renderPlayerHand } from '../components/GameHelper'
+import { initListeners } from '../components/Listeners'
+import { styles } from '../styles/lobby'
 
 export default class GameLobbyScreen extends Component {
     static navigationOptions = {
@@ -20,7 +23,11 @@ export default class GameLobbyScreen extends Component {
             player_html: (<View></View>),
             game_started: false,
             show_options: false,
-            errorMessage: null
+            errorMessage: null,
+            // game info:
+            pot: 0,
+            player_hand_html: (<View></View>),
+            community_cards_html: (<View></View>),
         }
     }
 
@@ -34,109 +41,31 @@ export default class GameLobbyScreen extends Component {
         this.setState({show_options: !options})
     }
 
-    playerAction = (action, amount) => {
-        global.room.send("playerTurn", {action: action, amount: amount})
-    }
-
     playerCheck = () => {
-        global.room.send("playerTurn", {action: 'check'})
+        console.log(firebase.auth().currentUser.uid, ' is checking ')
+        //global.room.send("playerTurn", {action: 'check'})
+        playerAction(global.room, 'check', 0)
     }
 
     playerBet = (amount) => {
-        global.room.send("playerTurn", {action: 'bet', amount: 100})
+        console.log(firebase.auth().currentUser.uid, ' is betting ', amount)
+        //global.room.send("playerTurn", {action: 'bet', amount: amount})
+        playerAction(global.room, 'bet', amount)
     }
 
     playerFold = () => {
-        global.room.send("playerTurn", {action: 'fold'})
-    }
-
-    renderPlayers = (players) => {
-        this.state.players = players
-        let started = this.state.game_started
-        return (
-            <View style={styles.playerContainer}>
-            {players.map(function(player, idx){
-                return (<View key={player.uid} style={[styles.playerCard, (!room.state.game_started && player.ready) ? {borderColor: '#b4f56c'}:{borderColor: '#E9446A'}]}>
-                    <Text style={styles.playerName}>{player.name}</Text>
-                    <View style={styles.cardContainer}>
-                        <View>
-                            <Image style={styles.card1} source={require('../assets/playing-cards/Backs/Card-Back-01.png')} />
-                        </View>
-                        <View>
-                            <Image style={styles.card2} source={require('../assets/playing-cards/Backs/Card-Back-01.png')} />
-                        </View>
-                    </View>
-                    <View>
-                        {!started && <Text style={styles.playerStatus}>{player.ready ? 'Ready':'Not Ready'}</Text>}
-                        {started && <Text style={styles.playerStatus}>{player.chips}</Text>}
-                        
-                    </View>
-                </View>)
-             })}
-            </View>
-          )
-    }
-
-    updatePlayers(players) {
-        let _players = []
-          players.forEach((player, key) => {
-            //console.log(`${key}'s name: ${player['name']}`)
-            //console.log(`${key}'s uid: ${player['uid']}`)
-            //console.log(`${key}'s ready state: ${player['ready']}`)
-            let _player = {
-                name: player['name'],
-                uid: player['uid'],
-                ready: player['ready'],
-                chips: player['chips'],
-                folded: player['folded'],
-            }
-            _players.push(_player)
-        })
-        this.setState({player_html: this.renderPlayers(_players)})
+        console.log(firebase.auth().currentUser.uid, ' is folding ')
+        //global.room.send("playerTurn", {action: 'fold'})
+        playerAction(global.room, 'fold', 0)
     }
 
     componentDidMount() {
-        global.room.send("message", {contents: "test"})
+        global.room.send("message", {contents: "mounted"}) // DEBUG PURPOSES
+        //loadLobbyInfo(this, global.room);
         //this.updatePlayers(global.room.state.players) // render players in current state
 
-        room.state.players.onAdd = (player, key) => {
-            console.log(player, " has been added at ", key)
-            global.room.state.players.set(key, player)
-            this.updatePlayers(global.room.state.players) // render players in current state
-        
-            // add your player entity to the game world!
-        
-            // If you want to track changes on a child object inside a map, this is a common pattern:
-            player.onChange = (changes) => {
-                changes.forEach(change => {
-                    if (change.field == 'ready') {
-                        //console.log(key, '\'s ready state has changed: ', change.value)
-                        let player = global.room.state.players.get(key)
-                        player.ready = change.value
-                        global.room.state.players.set(key, player)
-                        this.updatePlayers(global.room.state.players) // render players in current state
-                    }
-                    if (change.field == 'cards') {
-                        console.log(key, '\'s ready state has changed: ', change.value)
-                    }
-                });
-            };
-        
-            // force "onChange" to be called immediatelly
-            player.triggerAll();
-        };
-
-        room.state.players.onRemove = (player, key) => {
-            console.log(player, "has been removed at", key);
-            global.room.state.players.delete(key)
-            this.updatePlayers(global.room.state.players) // render players in current state
-        
-            // remove your player entity from the game world!
-        };
-
-        room.state.players.onChange = (changes) => {
-            console.log(changes)
-        }
+        initListeners(this);
+        //renderPlayerHand(global.room.state);
 
         room.onMessage("error", (e) => {
             this.setState({errorMessage: e})
@@ -145,6 +74,10 @@ export default class GameLobbyScreen extends Component {
         room.onMessage("startGame", (counter) => {
             console.log('Starting game')
             this.setState({game_started: true})
+        })
+
+        room.onMessage("whoseTurn", (player) => {
+            console.log('Player turn: ', player)
         })
     }
 
@@ -167,21 +100,58 @@ export default class GameLobbyScreen extends Component {
                     </View>}
                 </ScrollView>
                 </View>
+
+
                 <View style={styles.gameContainer}>
                     <View style={styles.board}>
-                        <View style={styles.roomCodeContainer}>
-                            {!this.state.game_started && 
-                            <Text style={styles.greeting}>{'Join code:'}</Text>}
-                            {!this.state.game_started && 
-                            <Text style={styles.gameCode}>{this.state.room_id}</Text>}
-                        </View>
+                        {/* RENDER ERROR */}
+                        {this.state.error &&
                         <View style={common.errorMessage}>
                             {this.state.errorMessage && <Text style={common.error}>{this.state.errorMessage}</Text>}
-                        </View>
-                    </View>
-                    
-                    
+                        </View>}
+                        {/* RENDER GAME LOBBY JOIN CODE */}
+                        {!this.state.game_started && 
+                        <View style={styles.roomCodeContainer}>
+                            <Text style={styles.greeting}>Join code:</Text>
+                            <Text style={styles.gameCode}>{this.state.room_id}</Text>
+                        </View>}
+                        {/* RENDER GAME LOBBY INFO */}
+                        {!this.state.game_started && 
+                        <View style={styles.gameInfoParentContainer}>
+                            <Text style={styles.greeting}>Game Rules:</Text>
+                            <View style={styles.gameInfoContainer}>
+                                <View style={styles.gameInfoLabels}>
+                                    <Text style={styles.gameInfo}>Stake:</Text>
+                                    <Text style={styles.gameInfo}>Amount:</Text>
+                                    <Text style={styles.gameInfo}>Starting Stack:</Text>
+                                    <Text style={styles.gameInfo}>Big Blind:</Text>
+                                    <Text style={styles.gameInfo}>Small Blind:</Text>
+                                </View>
+                                <View style={styles.gameInfo}>
+                                    <Text style={styles.gameInfo}>{global.room.state.stake}</Text>
+                                    <Text style={styles.gameInfo}>{global.room.state.amount}</Text>
+                                    <Text style={styles.gameInfo}>{global.room.state.chips}</Text>
+                                    <Text style={styles.gameInfo}>{global.room.state.b_blind}</Text>
+                                    <Text style={styles.gameInfo}>{global.room.state.s_blind}</Text>
+                                </View>
+                            </View>
+                        </View>}
+                        {/* RENDER GAME */}
+                        {this.state.game_started &&
+                        <View style={styles.roomCodeContainer}>
+                            <Text style={styles.greeting}>{'Community Cards:'}</Text>
+                            {this.state.community_cards_html}
+                            <Text style={styles.greeting}>{this.state.pot}</Text>
+                        </View>}
+                        {this.state.game_started &&
+                        <View style={styles.roomCodeContainer}>
+                            <Text style={styles.greeting}>{'Your Cards:'}</Text>
+                            <View style={styles.yourCardContainer}>
+                                {this.state.player_hand_html}
+                            </View>
+                        </View>}
                     <View style={{ flex: 1 }} />
+                    </View>
                 </View>
                 <View style={[styles.footer, (this.state.show_options) ? {bottom: 0}:{bottom: -150}]}>
                     {!this.state.game_started &&
@@ -194,16 +164,16 @@ export default class GameLobbyScreen extends Component {
                             <Text style={{ color: '#FFF', fontWeight: '500' }} onPress={this.showOptions}>Options</Text>
                         </TouchableOpacity>}
                         {this.state.game_started &&
-                        <TouchableOpacity style={styles.optionsButton}>
-                            <Text style={{ color: '#FFF', fontWeight: '500' }} onPress={this.playerCheck}>Check</Text>
+                        <TouchableOpacity style={styles.optionsButton} onPress={() =>{this.playerCheck()}}>
+                            <Text style={{ color: '#FFF', fontWeight: '500' }}>Check</Text>
                         </TouchableOpacity>}
                         {this.state.game_started &&
-                        <TouchableOpacity style={styles.optionsButton}>
-                            <Text style={{ color: '#FFF', fontWeight: '500' }} onPress={this.playerBet}>Bet</Text>
+                        <TouchableOpacity style={styles.optionsButton} onPress={() =>{this.playerBet(100)}}>
+                            <Text style={{ color: '#FFF', fontWeight: '500' }}>Bet</Text>
                         </TouchableOpacity>}
                         {this.state.game_started &&
-                        <TouchableOpacity style={styles.optionsButton}>
-                            <Text style={{ color: '#FFF', fontWeight: '500' }} onPress={this.playerFold}>Fold</Text>
+                        <TouchableOpacity style={styles.optionsButton} onPress={() =>{this.playerFold()}}>
+                            <Text style={{ color: '#FFF', fontWeight: '500' }}>Fold</Text>
                         </TouchableOpacity>}
                     </View>
                 </View>
@@ -211,116 +181,3 @@ export default class GameLobbyScreen extends Component {
         )
     }
 }
-
-
-const styles = StyleSheet.create({
-    playerScroller: {
-        borderBottomColor: '#8A8F9E', borderBottomWidth: StyleSheet.hairlineWidth,
-    },
-    playerContainer: {
-        flex: 0,
-        flexDirection: 'row',
-        marginHorizontal: 80,
-        marginVertical: 15,
-    },
-    playerCard: {
-        borderColor: '#E9446A',
-        borderWidth: 10,
-        height: 200,
-        width: 200,
-        fontSize: 15,
-        marginHorizontal: 25,
-        flex:0, justifyContent: 'space-between',
-    },
-    playerName: {
-        //color: 'white',
-        textAlign: 'center',
-        fontWeight: '500',
-        fontSize: 15,
-        paddingTop: 10
-    },
-    playerStatus: {
-        //color: 'white',
-        textAlign: 'center',
-        fontWeight: '500',
-        fontSize: 15,
-        paddingBottom: 10
-    },
-    playerReady: {
-        backgroundColor: 'red',
-        borderColor: '#8A8F9E',
-        borderRadius: StyleSheet.hairlineWidth,
-        height: 40,
-        fontSize: 15,
-        //color: '#161F3D'
-    },
-    gameContainer: {
-        flexGrow: 1,
-    },
-    footer: {
-        backgroundColor: 'grey',
-        position: 'absolute',
-        height: 200,
-        width: 415,
-        bottom: 50
-    },
-    menuOptions: {
-        flex:1, justifyContent: 'space-around',
-    },
-    optionsButton: {
-        flex: 0,
-        marginHorizontal: 30,
-        backgroundColor: '#E9446A',
-        borderRadius: 4,
-        height: 40,
-        alignItems: 'center',
-        justifyContent: 'center',
-        //paddingHorizontal: 10,
-        //marginBottom: 20,
-        //position: 'absolute',
-        //left: 0, 
-        //bottom: 52,
-    },
-    readyButton: {
-        marginHorizontal: 30,
-        backgroundColor: '#E9446A',
-        borderRadius: 4,
-        height: 52,
-        alignItems: 'center',
-        justifyContent: 'center',
-        //position: 'absolute',
-        //left: 0, 
-        //bottom: 52,
-    },
-    gameCode: {
-        fontSize: 75,
-        fontWeight: '400',
-        textAlign: 'center'
-    },
-    greeting: {
-        //marginTop: 32,
-        fontSize: 18,
-        fontWeight: '400',
-        textAlign: 'center'
-    },
-    board: {
-
-    },
-    cardContainer: {
-        alignItems: 'center', //Centered vertically
-        flex:1, flexDirection: 'row', justifyContent: 'space-around',
-        marginHorizontal: 8
-    },
-    card1: {
-        width: 58,
-        height: 80,
-        marginRight: -50,
-        transform: [{ rotate: '-16deg' }],
-    },
-    card2: {
-        width: 58,
-        height: 80,
-        marginLeft: -50,
-        transform: [{ rotate: '16deg' }],
-    },
-})

@@ -40,11 +40,12 @@ export default class GameCreateScreen extends Component {
             } else {
                 let { uid, displayName } = firebase.auth().currentUser
                 try {
-                    if (!amount || amount == NULL || amount == '' || amount == ' ') amount = 0
+                    if (!stake || stake == ' ') stake = null
+                    if (!amount || amount == ' ') amount = null
                     let settings = {
                         uid: uid,
                         name: displayName,
-                        stake: stake,
+                        stake: String(stake),
                         amount: amount,
                         chips: startingStack,
                         b_blind: bigBlind,
@@ -95,7 +96,7 @@ export default class GameCreateScreen extends Component {
                         <TextInput
                             style={common.input}
                             placeholder='Leave blank to play gamble-free'
-                            onChangeText={amount => this.setState({ mobile: amount.replace(/[^0-9]/g, '') })}
+                            onChangeText={amount => this.setState({ amount })}
                             value={this.state.amount}
                         />
                     </View>
@@ -104,6 +105,7 @@ export default class GameCreateScreen extends Component {
                         <TextInput
                             style={common.input}
                             defaultValue='3000'
+                            keyboardType='numeric'
                             onChangeText={startingStack => this.setState({ mobile: startingStack.replace(/[^0-9]/g, '') })}
                             value={this.state.startingStack}
                         />
@@ -113,6 +115,7 @@ export default class GameCreateScreen extends Component {
                         <TextInput
                             style={common.input}
                             defaultValue='50'
+                            keyboardType='numeric'
                             onChangeText={bigBlind => this.setState({ mobile: bigBlind.replace(/[^0-9]/g, '') })}
                             value={this.state.bigBlind}
                         />
@@ -122,6 +125,7 @@ export default class GameCreateScreen extends Component {
                         <TextInput
                             style={common.input}
                             defaultValue='25'
+                            keyboardType='numeric'
                             onChangeText={smallBlind => this.setState({ mobile: smallBlind.replace(/[^0-9]/g, '') })}
                             value={this.state.smallBlind}
                         />
