@@ -1,6 +1,6 @@
 import { Room, Client } from "colyseus";
 import { Schema, MapSchema, ArraySchema, Context, type, filter } from "@colyseus/schema";
-import { GameState, Player, Card, newDeck, readCard, shuffle, findBestHand } from "../schema/GameState";
+import { GameState, Player, Card, newDeck, readCard, shuffle, findBestHand, Hand } from "../schema/GameState";
 import { Game } from "../Game";
 
 // START GAME:
@@ -258,15 +258,18 @@ export function startGame(room: Room, state: GameState) {
   }
 
   export function determineWinner(room: Room, state: GameState) {
+    // REDO FUNCTION !!
     let winners: string[];
     let winningHand = 0;
     console.log('Finding round winner')
     state.players.forEach((player: Player, key: string) => {
-      let besthand = findBestHand(state.community_cards, player.cards)
-      if (besthand > winningHand) {
+      //let besthand = findBestHand(state.community_cards, player.cards)
+      let besthand = findBestHand(state.community_cards, player)
+      if (besthand.rank > winningHand) {
+        winningHand = besthand.rank
         winners = []
         winners.push(key)
-      } else if (besthand == winningHand) {
+      } else if (besthand.rank == winningHand) {
         winners.push(key)
       }
     });
