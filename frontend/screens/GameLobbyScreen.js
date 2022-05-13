@@ -48,9 +48,9 @@ export default class GameLobbyScreen extends Component {
     }
 
     playerBet = (amount) => {
-        console.log(firebase.auth().currentUser.uid, ' is betting ', amount)
+        console.log(firebase.auth().currentUser.uid, ' is raising ', amount)
         //global.room.send("playerTurn", {action: 'bet', amount: amount})
-        playerAction(global.room, 'bet', amount)
+        playerAction(global.room, 'raise', amount)
     }
 
     playerFold = () => {
