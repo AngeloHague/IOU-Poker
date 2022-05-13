@@ -1,6 +1,6 @@
 import { Room, Client } from "colyseus";
 import { GameState, Player, Card, newDeck, readCard, shuffle, findBestHand } from "./schema/GameState";
-import { playerTurn, startRound, startGame } from "./ts/GameLogic";
+import { playerTurn, startGame } from "./ts/GameLogic";
 
 const ALPHANUMERIC = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
 

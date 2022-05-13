@@ -2,6 +2,7 @@ import { Room, Client } from "colyseus";
 import { Schema, MapSchema, ArraySchema, Context, type, filter } from "@colyseus/schema";
 import { GameState, Player, Card, newDeck, readCard, shuffle, findBestHand, Hand, determineWinners } from "../schema/GameState";
 import { Game } from "../Game";
+import { HAND_NAME_MAP } from "../schema/constants";
 
 // START GAME:
 export function startGame(room: Room, state: GameState) {
@@ -15,14 +16,6 @@ export function startGame(room: Room, state: GameState) {
     state.players.set(key, player)
   })
   state.active_players = Array.from(state.players.keys())
-  state.dealer_idx = 0
-  startRound(room, state)
-  room.broadcast("startGame")
-  //room.broadcast("start_round")
-}
-
-// START ROUND:
-export function startRound(room: Room, state: GameState) {
   let deck = newDeck()
   state.deck = shuffle(deck)
   dealCards(state)
@@ -31,11 +24,15 @@ export function startRound(room: Room, state: GameState) {
   state.pot = 0
   state.folded_players = 0
   state.matched_players = 0
+  // set accumulative variables for index assignment
+  state.dealer_idx = 0 // room creator is first dealer
+  state.big_blind_idx = state.dealer_idx+1
+  state.small_blind_idx = state.big_blind_idx+1
   // assign dealer
   let no_players = state.active_players.length
   let d_idx = (state.dealer_idx) % no_players
   state.dealer = state.active_players[d_idx]
-  // assign big blind player
+  // // assign big blind player
   let bb_idx = (state.dealer_idx+1) % no_players
   state.bb_player = state.active_players[bb_idx]
   payBlind(state, state.bb_player, state.b_blind)
@@ -46,8 +43,76 @@ export function startRound(room: Room, state: GameState) {
   // assign first player
   state.player_idx = bb_idx
   state.current_player = state.active_players[state.player_idx]
+  //startRound(room, state)
+  room.broadcast("startGame")
   announceWhoseTurn(room, state)
+  //room.broadcast("start_round")
 }
+
+async function incrementIndex(state: GameState, variable: any) {
+  let idx = variable % state.active_players.length
+  if (state.players.get(state.active_players[idx]).isOut) {
+    variable+=1
+    incrementIndex(state, variable)
+  } else return idx
+}
+
+// NEXT ROUND:
+function nextRound(room: Room, state: GameState) {
+  let deck = newDeck()
+  state.deck = shuffle(deck)
+  dealCards(state)
+  // assign dealer
+  incrementIndex(state, state.dealer_idx).then((d_idx) => {
+    state.dealer = state.active_players[d_idx]
+    // assign big blind player
+    state.big_blind_idx = state.dealer_idx+1
+    let bb_idx = incrementIndex(state, state.big_blind_idx).then((bb_idx) => {
+      state.bb_player = state.active_players[bb_idx]
+      // assign small blind player
+      state.small_blind_idx = state.dealer_idx+1
+      let sb_idx = incrementIndex(state, state.small_blind_idx).then((sb_idx) => {
+        state.sb_player = state.active_players[sb_idx]
+        payBlind(state, state.bb_player, state.b_blind)
+        payBlind(state, state.sb_player, state.s_blind)
+        // assign first player
+        state.player_idx = bb_idx
+        state.current_player = state.active_players[state.player_idx]
+        // start round
+        announceWhoseTurn(room, state)
+      });
+    });
+  });
+}
+
+// NEXT ROUND:
+// export function nextRound(room: Room, state: GameState) {
+//   let deck = newDeck()
+//   state.deck = shuffle(deck)
+//   dealCards(state)
+//   // reset variables
+//   state.largest_bet = 0
+//   state.pot = 0
+//   state.folded_players = 0
+//   state.matched_players = 0
+//   prepareNextRound(room, state)
+//   // assign dealer
+//   // let no_players = state.active_players.length
+//   // let d_idx = (state.dealer_idx) % no_players
+//   // state.dealer = state.active_players[d_idx]
+//   // // assign big blind player
+//   // let bb_idx = (state.dealer_idx+1) % no_players
+//   // state.bb_player = state.active_players[bb_idx]
+//   payBlind(state, state.bb_player, state.b_blind)
+//   // assign small blind player
+//   // let sb_idx = (state.dealer_idx+2) % no_players
+//   // state.sb_player = state.active_players[sb_idx]
+//   payBlind(state, state.sb_player, state.s_blind)
+//   // assign first player
+//   // state.player_idx = bb_idx
+//   state.current_player = state.active_players[state.player_idx]
+//   announceWhoseTurn(room, state)
+// }
 
 //   export function getPlayerName(clientID: string) {
 //     let item = this.state.players.get(clientID)
@@ -55,13 +120,14 @@ export function startRound(room: Room, state: GameState) {
 //   }
 
 // PAY BLINDS:
-export function payBlind(state: GameState, player_id: string, blind: number) {
+function payBlind(state: GameState, player_id: string, blind: number) {
   if (blind >= state.players.get(player_id).chips) {
     let amount = state.players.get(player_id).chips
     state.players.get(player_id).chips -= amount
     state.players.get(player_id).current_bet = amount
     if (state.largest_bet < amount){
       state.largest_bet = amount
+      //state.matched_players = 1
     }
     state.pot += amount
   } else {
@@ -69,6 +135,7 @@ export function payBlind(state: GameState, player_id: string, blind: number) {
     state.players.get(player_id).current_bet = blind
     if (state.largest_bet < blind){
       state.largest_bet = blind
+      //state.matched_players = 1
     }
     state.pot += blind
   }
@@ -87,11 +154,16 @@ export function playerTurn (room: Room, state: GameState, client: Client, turn: 
       playerFold(room, state, client)
     } else if (turn.action == 'check') {
       console.log(client.sessionId, " chose to check")
-      playerCheck(room, state, client)
-    } else if (turn.action == 'bet') {
-      console.log(client.sessionId, " chose to bet: ", turn.amount)
+      playerCheck(room, state, state.players.get(client.sessionId))
+    // } else if (turn.action == 'bet') {
+    //   console.log(client.sessionId, " chose to bet: ", turn.amount)
+    //   //bet code
+    //   playerBet(room, state, client, turn.amount)
+    // }
+    } else if (turn.action == 'raise') {
+      console.log(client.sessionId, " chose to raise: ", turn.amount)
       //bet code
-      playerBet(room, state, client, turn.amount)
+      playerRaise(room, state, state.players.get(client.sessionId), turn.amount)
     }
   } else {
       // not that player's turn
@@ -99,69 +171,129 @@ export function playerTurn (room: Room, state: GameState, client: Client, turn: 
   }
 }
 
-export function playerFold(room: Room, state: GameState, client: Client) {
-  state.players.get(client.sessionId).folded = true
+function playerFold(room: Room, state: GameState, player: Player) {
+  player.isFolded = true
   state.folded_players+=1
   checkIfStageOver(room, state)
 }
 
-export function playerCheck(room: Room, state: GameState, client: Client) {
-  if (state.players.get(client.sessionId).current_bet == state.largest_bet || state.players.get(client.sessionId).chips == 0) {
-      console.log(client.sessionId, " checked successfully")
+// function playerFold(room: Room, state: GameState, client: Client) {
+//   state.players.get(client.sessionId).isFolded = true
+//   state.folded_players+=1
+//   checkIfStageOver(room, state)
+// }
+
+function playerCheck(room: Room, state: GameState, player: Player) {
+  if (player.current_bet == state.largest_bet || player.chips == 0) {
+      console.log(player.sessionId, " checked successfully", '. Total Pot: ', state.pot)
       state.matched_players += 1
       checkIfStageOver(room, state)
     } else {
-      client.send('error', 'You cannot check! Please match the current bet')
-      console.log(client.sessionId ,' cannot check! They must match the current bet')
+      if (player.chips > state.largest_bet) {
+        // Call bet
+        playerCall(room, state, player)
+      } else if (player.chips <= state.largest_bet) {
+        // All in
+        playerAllIn(room, state, player)
+      }
     }
 }
 
-export function playerBet(room: Room, state: GameState, client: Client, amount: number) {
-  if (amount < state.largest_bet && state.players.get(client.sessionId).chips >= state.largest_bet) {
-  } else if (amount > state.largest_bet && state.players.get(client.sessionId).chips + state.players.get(client.sessionId).current_bet == amount) {
-    //all in
-    state.players.get(client.sessionId).current_bet = amount
-    state.players.get(client.sessionId).chips -= amount
+function playerCall(room: Room, state: GameState, player: Player) {
+  let increase = state.largest_bet - player.current_bet
+  player.current_bet += increase
+  player.chips -= increase
+  state.matched_players+=1
+  state.pot += increase
+  console.log(player.sessionId, ' called, adding ', increase, '. Total Pot: ', state.pot)
+  checkIfStageOver(room, state)
+}
+
+function playerAllIn(room: Room, state: GameState, player: Player) {
+  let amount = player.chips
+  player.current_bet += amount
+  player.chips -= amount
+  player.isAllIn = true
+  if (amount > state.largest_bet) {
     state.largest_bet = amount
-    state.pot += amount
     state.matched_players = 1
-    console.log(client.sessionId, " has gone all-in with: ", amount)
-    checkIfStageOver(room, state)
-  } else if (amount > state.largest_bet && state.players.get(client.sessionId).chips + state.players.get(client.sessionId).current_bet > state.largest_bet) {
-    // new maximum
-    state.players.get(client.sessionId).current_bet = amount
-    state.players.get(client.sessionId).chips -= amount
-    state.largest_bet = amount
-    state.pot += amount
-    state.matched_players = 1
-    console.log(client.sessionId, " has raised to: ", amount)
-    checkIfStageOver(room, state)
-  } else if (amount == state.largest_bet && state.players.get(client.sessionId).chips + state.players.get(client.sessionId).current_bet >= state.largest_bet) {
-    // matched bet
-    state.players.get(client.sessionId).current_bet = amount
-    state.players.get(client.sessionId).chips -= amount
-    state.pot += amount
-    state.matched_players +=1
-    console.log(client.sessionId, " has matched with: ", amount)
-    checkIfStageOver(room, state)
-  } else if (amount < state.largest_bet && state.players.get(client.sessionId).chips + state.players.get(client.sessionId).current_bet < state.largest_bet) {
-    // split pot
-    state.players.get(client.sessionId).current_bet = amount
-    state.players.get(client.sessionId).chips -= amount
-    state.pot += amount
-    state.matched_players +=1
-    console.log(client.sessionId, " has gone all-in with: ", amount)
-    checkIfStageOver(room, state)
+  } else state.matched_players+=1
+  state.pot += amount
+  console.log(player.sessionId, ' went all-in with: ', amount, '. Total Pot: ', state.pot)
+  checkIfStageOver(room, state)
+}
+
+function playerRaise(room: Room, state: GameState, player: Player, amount: number) {
+  if (amount == player.chips && amount > state.largest_bet) {
+    playerAllIn(room, state, player)
+  } else if (amount > state.largest_bet) {
+    let increase = amount - player.current_bet
+    if (increase <= player.chips) {
+      player.current_bet += increase
+      state.largest_bet = amount
+      state.pot += increase
+      console.log(player.sessionId, ' raised to: ', amount, '. Total Pot: ', state.pot)
+      checkIfStageOver(room, state)
+    } else {
+      // player cannot afford
+    }
+  }
+  else {
+    // amount not big enough
   }
 }
 
-export function nextPlayer(room: Room, state: GameState) {
+function playerBet(room: Room, state: GameState, player: Player, amount: number) {
+  //
+}
+
+// function playerBet(room: Room, state: GameState, client: Client, amount: number) {
+//   if (amount < state.largest_bet && state.players.get(client.sessionId).chips >= state.largest_bet) {
+//     // bet too low
+//   } else if (amount > state.largest_bet && state.players.get(client.sessionId).chips + state.players.get(client.sessionId).current_bet == amount) {
+//     //all in
+//     state.players.get(client.sessionId).current_bet += amount
+//     state.players.get(client.sessionId).chips -= amount
+//     state.largest_bet = amount
+//     state.pot += amount
+//     state.matched_players = 1
+//     console.log(client.sessionId, " has gone all-in with: ", amount)
+//     checkIfStageOver(room, state)
+//   } else if (amount > state.largest_bet && state.players.get(client.sessionId).chips + state.players.get(client.sessionId).current_bet > state.largest_bet) {
+//     // new maximum
+//     state.players.get(client.sessionId).current_bet = amount
+//     state.players.get(client.sessionId).chips -= amount
+//     state.largest_bet = amount
+//     state.pot += amount
+//     state.matched_players = 1
+//     console.log(client.sessionId, " has raised to: ", amount)
+//     checkIfStageOver(room, state)
+//   } else if (amount == state.largest_bet && state.players.get(client.sessionId).chips + state.players.get(client.sessionId).current_bet >= state.largest_bet) {
+//     // matched bet
+//     state.players.get(client.sessionId).current_bet = amount
+//     state.players.get(client.sessionId).chips -= amount
+//     state.pot += amount
+//     state.matched_players +=1
+//     console.log(client.sessionId, " has called with: ", amount)
+//     checkIfStageOver(room, state)
+//   } else if (amount < state.largest_bet && state.players.get(client.sessionId).chips + state.players.get(client.sessionId).current_bet < state.largest_bet) {
+//     // split pot
+//     state.players.get(client.sessionId).current_bet = amount
+//     state.players.get(client.sessionId).chips -= amount
+//     state.pot += amount
+//     state.matched_players +=1
+//     console.log(client.sessionId, " has gone all-in with: ", amount)
+//     checkIfStageOver(room, state)
+//   }
+// }
+
+function nextPlayer(room: Room, state: GameState) {
   console.log('Determining next player...')
   state.player_idx+=1
   let idx = state.player_idx % state.active_players.length
   let key = state.active_players[idx]
   let next_player = state.players.get(key)
-  if (next_player.folded || next_player.chips == 0) {
+  if (next_player.isFolded || next_player.chips == 0) {
     console.log('Player not active, finding next player...')
     nextPlayer(room, state)
   } else {
@@ -171,32 +303,102 @@ export function nextPlayer(room: Room, state: GameState) {
   announceWhoseTurn(room, state);
 }
 
-export function allocateWinnings(room: Room, state: GameState, winners: Hand[]) {
-  winners.forEach((winner) => {
+function allocateWinnings(room: Room, state: GameState, winners: any[]) {
+  winners.forEach((winning_hands) => {
     try {
       if (state.pot > 0) {
-        let max_payout = state.players.get(winner.owner).current_bet * state.betting_players.size
-        if (max_payout >= state.pot) {
-          console.log(winner.owner, ' has won ', state.pot,' chips')
-          state.players.get(winner.owner).chips += state.pot
-          state.pot = 0
-        } else {
-          if (max_payout < state.pot) {
-            console.log(winner.owner, ' has won ', max_payout,' chips')
-            state.players.get(winner.owner).chips += max_payout
-            state.pot -= max_payout
-          }
+        if (winning_hands.length > 1) {
+          // multiple winners
+          payOutSplitPot(state, winners);
+        } else if (winning_hands.length == 1) {
+          // one winner
+          payOut(state, winning_hands[0], checkMaxPayout(state, state.players.get(winning_hands[0].owner)));
         }
+        
       } else {
         throw ('Empty pot')
       }
     }
     catch (e) {
-      console.log(e)
+      //console.log(e)
     }
     
-  })
+  });
+  // In the event of a split pot leaving chips, give to first winner:
+  // e.g. 2 players bet 300, while the 3rd (small blind) entered only bet 25:
+  // 625 / 2 = 312.5. As operations are integer-based, 1 chips will be left in the pot.
+  if (state.pot > 0) {
+    payOut(state, winners[0][0], checkMaxPayout(state, state.players.get(winners[0][0].owner)));
+  }
 }
+
+//payOut
+//payOutSplitPot
+//checkMaxPayout
+
+// Checks the maximum payout this player can earn (i.e. split pots can earn less than others)
+function checkMaxPayout(state: GameState, winner: Player) {
+  let max_payout: number = 0
+  state.players.forEach(player => {
+    if (player.current_bet <= winner.current_bet) max_payout+=player.current_bet
+    else max_payout+=winner.current_bet
+  });
+  return max_payout
+}
+
+// Checks for side pots and splits according to their possible earnings
+function splitSidePots(state: GameState, pots: any[]) {
+  let split_pot = Math.floor(state.pot / pots.length)
+  let remaining_pots: any = []
+
+  pots.forEach(pot => {
+    let max_split = Math.floor(pot.pot / pots.length)
+    if (max_split <= split_pot) {
+      // payout
+      payOut(state, pot.winner, max_split)
+    } else remaining_pots.push(pot)
+  });
+  if (remaining_pots == pots.length) {
+    return remaining_pots
+  } else splitSidePots(state, remaining_pots)
+};
+
+function payOutSplitPot(state: GameState, winners: Hand[]) {
+  let pots: any = []
+  winners.forEach(winner => {
+    let max_payout = checkMaxPayout(state, state.players.get(winner.owner))
+    pots.push({pot: max_payout, winner: winner})
+  })
+  // Sort Ascending
+  pots.sort((a: any, b:any) => {
+    return a.pot - b.pot
+  });
+  let remaining_pots = splitSidePots(state, pots)
+  if (remaining_pots.length > 0) {
+    let split_pot = Math.floor(state.pot / remaining_pots.length)
+    remaining_pots.forEach((pot: any) => {
+      payOut(state, pot.winner, split_pot)
+    });
+  }
+}
+
+function payOut(state: GameState, winning_hand: Hand, max_payout: number) {
+  let winner = state.players.get(winning_hand.owner)
+  if (max_payout >= state.pot) {
+    // Full Payout
+    console.log(winner.sessionId, ' has won ', state.pot,' chips with a ', HAND_NAME_MAP.get(winning_hand.rank))
+    winner.chips += state.pot
+    state.pot = 0
+  } else {
+    // Partial Payout (Side Pots)
+    if (max_payout < state.pot) {
+      console.log(winner.sessionId, ' has won ', max_payout,' chips with a ', HAND_NAME_MAP.get(winning_hand.rank))
+      winner.chips += max_payout
+      state.pot -= max_payout
+    }
+  }
+}
+
 
 export function foldWin(room: Room, state: GameState) {
   console.log('Checking for fold victory')
@@ -204,9 +406,8 @@ export function foldWin(room: Room, state: GameState) {
   let folded = 0
   let players = state.active_players
   players.forEach((key) => {
-    let player = state.players.get(key)
     console.log('Checking if ', key, ' has folded')
-    if (player.folded == true) {
+    if (state.players.get(key).isFolded == true) {
       console.log(key, ' has folded.')
       folded+=1
     } else {
@@ -217,12 +418,14 @@ export function foldWin(room: Room, state: GameState) {
 }
 
 export function checkIfStageOver(room: Room, state: GameState) {
+  // if everyone else has folded, last player remaining wins:
   if (state.active_players.length == state.folded_players-1) {
     // all other players folded
     let winners = foldWin(room, state)
     allocateWinnings(room, state, winners)
     console.log('All other players have folded. Winner is: ', winners[0])
   }
+  // Otherwise wait until each player has bet equally or folded:
   else if (state.matched_players == state.active_players.length - state.folded_players) {
     console.log('Progressing to next stage:')
     // progress round to next stage
@@ -247,7 +450,8 @@ export function checkIfStageOver(room: Room, state: GameState) {
       // determine winner
       //determineWinner(room, state)
       let winners = determineWinners(state)
-      //allocateWinnings(winners)
+      //console.log(winners)
+      allocateWinnings(room, state, winners)
       // Reset after 5s
       let timeout = 5
       var timer = setInterval(function () {
@@ -268,39 +472,31 @@ export function checkIfStageOver(room: Room, state: GameState) {
   nextPlayer(room, state)
 }
 
-export function determineWinner(room: Room, state: GameState) {
-  // REDO FUNCTION !!
-  let winners: string[];
-  let winningHand = 0;
-  console.log('Finding round winner')
-  state.players.forEach((player: Player, key: string) => {
-    //let besthand = findBestHand(state.community_cards, player.cards)
-    let besthand = findBestHand(state.community_cards, player)
-    if (besthand.rank > winningHand) {
-      winningHand = besthand.rank
-      winners = []
-      winners.push(key)
-    } else if (besthand.rank == winningHand) {
-      winners.push(key)
-    }
-  });
-  console.log('%s winning with %s', winners, winningHand)
-  if (winners.length == 1) {
-    return winners[0]
-  } else if (winners.length > 1) {
-    // determine who has best card and return 
-  }
-}
-
 export function roundReset(room: Room, state: GameState) {
+  let playersOut = 0
   console.log('Resetting round')
-  state.dealer_idx+=1
-  state.community_cards = new ArraySchema<Card>()
-  state.round_stage = 0
   state.players.forEach((player) => {
     player.cards = new ArraySchema<Card>()
+    player.current_bet = 0
+    player.isFolded = false
+    player.isAllIn = false
+    if (player.isOut) playersOut+=1
   });
-  startRound(room, state)
+  if (playersOut == state.active_players.length-1)
+  {
+    // game is over
+    console.log('Game Over: Only one player remaining')
+  } else {
+    // reset variables
+    state.largest_bet = 0
+    state.pot = 0
+    state.folded_players = 0
+    state.matched_players = 0
+    state.round_stage = 0
+    //state.dealer_idx+=1
+    state.community_cards = new ArraySchema<Card>()
+    nextRound(room, state)
+  }
 }
 
 export function getPlayerUID(state: GameState, clientID: string) {
