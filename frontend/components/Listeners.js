@@ -27,6 +27,8 @@ export function playerListener(component){
                     global.room.state.players.set(key, player)
                     //this.updatePlayers(global.room.state.players) // render players in current state
                     updatePlayers(component, global.room.state.players) // render players in current state
+                } else if (change.field == 'chips') {
+                    console.log(key, '\'s chips have changed from: ', change.previousValue, ' to ', change.value)
                 }
             });
         };

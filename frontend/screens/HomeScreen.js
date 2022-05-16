@@ -3,6 +3,9 @@ import { View, Text, TextInput, StyleSheet, TouchableOpacity, KeyboardAvoidingVi
 import firebase from 'firebase/app'
 import 'firebase/auth'
 import * as Colyseus from "colyseus.js"
+import { preloadCards } from '../components/renderCards'
+import { MaterialCommunityIcons } from '@expo/vector-icons'; 
+import { normaliseHeight, normaliseWidth } from '../styles/normalize'
 
 export default class HomeScreen extends Component {
     static navigationOptions = {
@@ -11,18 +14,22 @@ export default class HomeScreen extends Component {
 
     state = {
         email: '',
-        displayName: ''
+        displayName: '',
+        preloading: true,
     }
 
     componentDidMount() {
         const {email, displayName, uid} = firebase.auth().currentUser
-
         this.setState({email, displayName, uid})
+
+        preloadCards()
     }
 
     signOutUser = () => {
         firebase.auth().signOut()
     }
+
+    
 
 
     render() {
@@ -35,12 +42,26 @@ export default class HomeScreen extends Component {
                     <Image style={styles.bigLogo} source={require('../assets/Logo.png')} />
                     <Text style={styles.greeting}>Hi {this.state.displayName}!</Text>
                 </View>
-                <TouchableOpacity
+                <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-evenly'}}>
+                    <View styles={{width: normaliseWidth(25), height: normaliseHeight(25)}}>
+                        <Text><MaterialCommunityIcons name="cards-club" size={24} color="black" /></Text>
+                    </View>
+                    <View styles={{width: normaliseWidth(25), height: normaliseHeight(25)}}>
+                        <Text><MaterialCommunityIcons name="cards-diamond" size={24} color="red" /></Text>
+                    </View>
+                    <View styles={{width: normaliseWidth(25), height: normaliseHeight(25)}}>
+                        <Text><MaterialCommunityIcons name="cards-spade" size={24} color="black" /></Text>
+                    </View>
+                    <View styles={{width: normaliseWidth(25), height: normaliseHeight(25)}}>
+                        <Text><MaterialCommunityIcons name="cards-heart" size={24} color="red" /></Text>
+                    </View>
+                </View>
+                {/*<TouchableOpacity
                     style={styles.button}
                     onPress={() => this.props.navigation.navigate('Game', {game_id:'ZEn7JX4EPICO1otkNrnl'})}
                 >
                     <Text style={{ color: '#FFF', fontWeight: '500' }}>Play Game</Text>
-                </TouchableOpacity>
+        </TouchableOpacity>*/}
                 <TouchableOpacity
                     style={styles.button}
                     onPress={() => this.props.navigation.navigate('GameCreate')}
