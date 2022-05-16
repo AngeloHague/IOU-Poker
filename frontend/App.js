@@ -4,7 +4,7 @@ import LoadingScreen from './screens/LoadingScreen'
 import LoginScreen from './screens/LoginScreen'
 import RegisterScreen from './screens/RegisterScreen'
 import HomeScreen from './screens/HomeScreen'
-import GameScreen from './screens/GameScreen'
+//import GameScreen from './screens/GameScreen'
 import GameCreateScreen from './screens/GameCreateScreen'
 import GameJoinScreen from './screens/GameJoinScreen'
 import GameLobbyScreen from './screens/GameLobbyScreen'
@@ -13,8 +13,8 @@ import { SocketContext } from './components/socketContext'
 import * as Colyseus from "colyseus.js"
 
 import * as firebase from 'firebase'
-import React from 'react'
-import { View } from 'react-native'
+
+import { useFonts, Roboto_400Regular } from '@expo-google-fonts/roboto';
 
 const host = 'ws://192.168.0.101:3000'
 global.client = new Colyseus.Client(host)
@@ -32,12 +32,19 @@ firebase
   .initializeApp(firebaseConfig)
   .firestore()
 
+  //load fonts
+  let [fontsLoaded] = useFonts({
+    Roboto_400Regular,
+  });
+
+  global.fontsLoaded = fontsLoaded
+
 const AppStack = createStackNavigator({
   Home: HomeScreen,
   GameCreate: GameCreateScreen,
   GameLobby: GameLobbyScreen,
   GameJoin: GameJoinScreen,
-  Game: GameScreen,
+  //Game: GameScreen,
   Debt: DebtScreen
 })
 

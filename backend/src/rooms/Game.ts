@@ -93,6 +93,7 @@ export class Game extends Room<GameState> {
     player.uid = settings.uid
     player.name = settings.name
     player.ready = false
+    player.chips = this.state.chips
     player.sessionId = client.sessionId
 
     this.state.players.set(client.sessionId, player)

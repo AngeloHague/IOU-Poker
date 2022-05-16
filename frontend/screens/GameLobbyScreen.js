@@ -8,6 +8,9 @@ import common from '../styles/common'
 import { renderPlayers, playerAction, renderPlayerHand } from '../components/GameHelper'
 import { initListeners } from '../components/Listeners'
 import { styles } from '../styles/lobby'
+import { Table } from '../components/Table'
+import { LobbyInfo } from '../components/LobbyInfo'
+import { normaliseHeight } from '../styles/normalize'
 
 export default class GameLobbyScreen extends Component {
     static navigationOptions = {
@@ -63,6 +66,7 @@ export default class GameLobbyScreen extends Component {
         global.room.send("message", {contents: "mounted"}) // DEBUG PURPOSES
         //loadLobbyInfo(this, global.room);
         //this.updatePlayers(global.room.state.players) // render players in current state
+        if (global.room.state.game_started == true) this.setState({game_started: true})
 
         initListeners(this);
         //renderPlayerHand(global.room.state);
@@ -109,13 +113,14 @@ export default class GameLobbyScreen extends Component {
                         <View style={common.errorMessage}>
                             {this.state.errorMessage && <Text style={common.error}>{this.state.errorMessage}</Text>}
                         </View>}
-                        {/* RENDER GAME LOBBY JOIN CODE */}
-                        {!this.state.game_started && 
+                        {/* RENDER GAME LOBBY JOIN CODE */
+                        !this.state.game_started && LobbyInfo(this)}
+                        {/* {!this.state.game_started && 
                         <View style={styles.roomCodeContainer}>
                             <Text style={styles.greeting}>Join code:</Text>
                             <Text style={styles.gameCode}>{this.state.room_id}</Text>
                         </View>}
-                        {/* RENDER GAME LOBBY INFO */}
+                        {/* RENDER GAME LOBBY INFO }
                         {!this.state.game_started && 
                         <View style={styles.gameInfoParentContainer}>
                             <Text style={styles.greeting}>Game Rules:</Text>
@@ -135,25 +140,28 @@ export default class GameLobbyScreen extends Component {
                                     <Text style={styles.gameInfo}>{global.room.state.s_blind}</Text>
                                 </View>
                             </View>
-                        </View>}
+                        </View>} */}
+                        {/*this.state.game_started && Table(this)*/}
                         {/* RENDER GAME */}
                         {this.state.game_started &&
-                        <View style={styles.roomCodeContainer}>
-                            <Text style={styles.greeting}>{'Community Cards:'}</Text>
-                            {this.state.community_cards_html}
-                            <Text style={styles.greeting}>{this.state.pot}</Text>
-                        </View>}
-                        {this.state.game_started &&
-                        <View style={styles.roomCodeContainer}>
-                            <Text style={styles.greeting}>{'Your Cards:'}</Text>
-                            <View style={styles.yourCardContainer}>
-                                {this.state.player_hand_html}
+                        <View style={{ flex: 1, flexDirection: 'column', /* backgroundColor: 'blue' */ }}>
+                            <View style={styles.commCardContainer}>
+                                <Text style={styles.heading}>{'Community Cards:'}</Text>
+                                <View>{this.state.community_cards_html}</View>
+                                <Text style={styles.heading}>{this.state.pot}</Text>
+                            </View>
+                            <View style={styles.playedHandContainer}>
+                                <Text style={styles.heading}>{'Your Cards:'}</Text>
+                                <View style={styles.playerHand}>
+                                    {this.state.player_hand_html}
+                                </View>
                             </View>
                         </View>}
-                    <View style={{ flex: 1 }} />
+                    {//<View style={{ flex: 1 }} />
+                    }
                     </View>
                 </View>
-                <View style={[styles.footer, (this.state.show_options) ? {bottom: 0}:{bottom: -150}]}>
+                <View style={[styles.footer, (this.state.show_options) ? {bottom: 0}:{bottom: normaliseHeight(-150)}]}>
                     {!this.state.game_started &&
                     <TouchableOpacity style={styles.readyButton} onPress={this.changeReadyState}>
                         <Text style={{ color: '#FFF', fontWeight: '500' }}>Vote to Start</Text>

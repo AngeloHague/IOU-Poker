@@ -1,24 +1,27 @@
 import { StyleSheet, Dimensions, Platform, PixelRatio } from 'react-native';
+import { normaliseFont, normaliseHeight, normaliseWidth } from './normalize'
+import { useFonts, Roboto_400Regular } from '@expo-google-fonts/roboto';
 
-// SCALE CONTENT ON DEVICES:
-/*------------------------*/
-const {
-  width: SCREEN_WIDTH,
-  height: SCREEN_HEIGHT,
-} = Dimensions.get('window');
+// // SCALE CONTENT ON DEVICES:
+// /*------------------------*/
+// const {
+//   width: SCREEN_WIDTH,
+//   height: SCREEN_HEIGHT,
+// } = Dimensions.get('window');
 
-// based on pixel 3a's scale
-const scale = SCREEN_WIDTH / 1080;
+// // based on pixel 3a's scale
+// const scale_width = SCREEN_WIDTH / 412;
+// const scale_height = SCREEN_HEIGHT / 846;
 
-export function normalize(size) {
-  const newSize = size * scale 
-  if (Platform.OS === 'ios') {
-    return Math.round(PixelRatio.roundToNearestPixel(newSize))
-  } else {
-    return Math.round(PixelRatio.roundToNearestPixel(newSize)) - 2
-  }
-}
-/*------------------------*/
+// export function normalize(size) {
+//   const newSize = size * scale 
+//   if (Platform.OS === 'ios') {
+//     return Math.round(PixelRatio.roundToNearestPixel(newSize))
+//   } else {
+//     return Math.round(PixelRatio.roundToNearestPixel(newSize)) - 2
+//   }
+// }
+// /*------------------------*/
 
 export const styles = StyleSheet.create({
     playerScroller: {
@@ -27,38 +30,38 @@ export const styles = StyleSheet.create({
     playerContainer: {
         flex: 0,
         flexDirection: 'row',
-        marginHorizontal: 80,
-        marginVertical: 15,
+        marginHorizontal: normaliseWidth(40),
+        marginVertical: normaliseHeight(15),
     },
     playerCard: {
         borderColor: '#E9446A',
         borderWidth: 10,
-        height: 200,
-        width: 200,
-        fontSize: 15,
-        marginHorizontal: 25,
+        height: normaliseWidth(150), // ensures equilateral
+        width: normaliseWidth(150),
+        fontSize: normaliseFont(15),
+        marginHorizontal: normaliseWidth(17.5),
         flex:0, justifyContent: 'space-between',
     },
     playerName: {
         //color: 'white',
         textAlign: 'center',
-        fontWeight: '500',
-        fontSize: 15,
-        paddingTop: 10
+        fontWeight: 'bold',
+        fontSize: normaliseFont(15),
+        paddingTop: normaliseHeight(10)
     },
     playerStatus: {
         //color: 'white',
         textAlign: 'center',
-        fontWeight: '500',
-        fontSize: 15,
-        paddingBottom: 10
+        fontWeight: 'bold',
+        fontSize: normaliseFont(15),
+        paddingBottom: normaliseHeight(10)
     },
     playerReady: {
         backgroundColor: 'red',
         borderColor: '#8A8F9E',
         borderRadius: StyleSheet.hairlineWidth,
-        height: 40,
-        fontSize: 15,
+        height: normaliseHeight(40),
+        fontSize: normaliseFont(15),
         //color: '#161F3D'
     },
     gameContainer: {
@@ -67,19 +70,19 @@ export const styles = StyleSheet.create({
     footer: {
         backgroundColor: 'grey',
         position: 'absolute',
-        height: 200,
-        width: 415,
-        bottom: 50
+        height: normaliseHeight(200),
+        width: normaliseWidth(415),
+        bottom: normaliseHeight(50)
     },
     menuOptions: {
         flex:1, justifyContent: 'space-around',
     },
     optionsButton: {
         flex: 0,
-        marginHorizontal: 30,
+        marginHorizontal: normaliseWidth(30),
         backgroundColor: '#E9446A',
         borderRadius: 4,
-        height: 40,
+        height: normaliseHeight(40),
         alignItems: 'center',
         justifyContent: 'center',
         //paddingHorizontal: 10,
@@ -89,10 +92,10 @@ export const styles = StyleSheet.create({
         //bottom: 52,
     },
     readyButton: {
-        marginHorizontal: 30,
+        marginHorizontal: normaliseWidth(30),
         backgroundColor: '#E9446A',
         borderRadius: 4,
-        height: 52,
+        height: normaliseHeight(52),
         alignItems: 'center',
         justifyContent: 'center',
         //position: 'absolute',
@@ -100,55 +103,98 @@ export const styles = StyleSheet.create({
         //bottom: 52,
     },
     gameCode: {
-        fontSize: 75,
+        fontSize: normaliseFont(75),
         fontWeight: '400',
         textAlign: 'center'
     },
-    greeting: {
-        marginTop: 16,
-        fontSize: 18,
-        fontWeight: '400',
+    heading: {
+        marginVertical: normaliseHeight(8),
+        fontSize: normaliseFont(18),
+        fontWeight: 'bold',
         textAlign: 'center'
     },
     board: {
-
+        flex: 1,
+        //backgroundColor: 'red', // debug purposes
     },
     cardContainer: {
         alignItems: 'center', //Centered vertically
         flex:1, flexDirection: 'row', justifyContent: 'space-around',
-        marginHorizontal: 8
+        //marginHorizontal: 8
     },
-    yourCardContainer: {
+    playedHandContainer: {
         alignItems: 'center', //Centered vertically
+        flexGrow: 1,
+        flex:1, flexDirection: 'column',// justifyContent: 'space-around',
+        //backgroundColor: 'green', // debug purposes
+        marginHorizontal: normaliseWidth(8)
+    },
+    playedHand: {
+        alignItems: 'center', //Centered vertically
+        flexGrow: 2,
         flex:1, flexDirection: 'row', justifyContent: 'space-around',
+        backgroundColor: 'green',
         //marginHorizontal: 8
     },
     cardView: {
-        width: 58,
-        height: 80,
+        width: normaliseWidth(58),
+        height: normaliseHeight(80),
         padding: 10,
     },
+    communityCard: {
+        width: normaliseWidth(58),
+        height: normaliseHeight(80),
+        //margin: 5,
+    },
     card: {
-        width: 58,
-        height: 80,
-        margin: 25,
+        flexDirection: 'column',
+        width: normaliseWidth(58),
+        height: normaliseWidth(80),
+        backgroundColor: '#fff',
+        borderRadius: normaliseFont(10),
+        borderWidth: 2,
+        borderColor: 'black',
+        margin: 5,
+    },
+    cardHeader: {
+        flex: .5,
+    },
+    cardValue: {
+        fontFamily: 'Roboto_400Regular',
+        fontSize: normaliseFont(20),
+        fontWeight: 'bold',
+        marginHorizontal: normaliseWidth(5),
+    },
+    cardSuit: {
+        flex: 1,
+        margin: 'auto',
+        textAlign: 'center',
+        fontSize: normaliseFont(35),
+        fontWeight: '500',
     },
     card1: {
-        width: 58,
-        height: 80,
-        marginRight: -50,
+        //width: 58,
+        //height: 80,
+        marginRight: normaliseWidth(-50),
         transform: [{ rotate: '-16deg' }],
     },
     card2: {
-        width: 58,
-        height: 80,
-        marginLeft: -50,
+        //width: 58,
+        //height: 80,
+        marginLeft: normaliseWidth(-50),
         transform: [{ rotate: '16deg' }],
     },
     communityCards: {
-        fontSize: 48,
+        fontSize: normaliseFont(48),
         fontWeight: '400',
-        textAlign: 'center'
+        textAlign: 'center',
+    },
+    commCardContainer: {
+        //backgroundColor: 'green', // debug purposes
+        //flexGrow: 1,
+        //flex: 1,
+        flexDirection: 'column',
+        //justifyContent: 'space-evenly'
     },
     // Game Info CSS:
     gameInfoParentContainer: {
@@ -163,6 +209,6 @@ export const styles = StyleSheet.create({
         //
     },
     gameInfo: {
-        //
+        fontSize: normaliseFont(20)
     }
 })
