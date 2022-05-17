@@ -3,6 +3,8 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, StatusBar, Keyboar
 import firebase from 'firebase/app'
 import 'firebase/auth'
 
+import { auth } from '../firebase'
+
 export default class LoginScreen extends Component {
     static navigationOptions = {
         headerShown: false
@@ -16,8 +18,9 @@ export default class LoginScreen extends Component {
 
     handleLogin = () => {
         const { email, password } = this.state
-        firebase
-            .auth()
+        // firebase
+        //     .auth()
+        auth
             .signInWithEmailAndPassword(email, password)
             .catch(error => this.setState({ errorMessage: error.message }))
     }

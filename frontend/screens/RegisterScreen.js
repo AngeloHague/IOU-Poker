@@ -3,6 +3,8 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingVi
 import firebase from 'firebase/app'
 import 'firebase/auth'
 
+import { auth } from '../firebase'
+
 export default class RegisterScreen extends Component {
     static navigationOptions = {
         headerShown: false
@@ -22,8 +24,9 @@ export default class RegisterScreen extends Component {
             this.setState({ errorMessage: 'Passwords do not match' })
         }
         else {
-            firebase
-                .auth()
+            // firebase
+            //     .auth()
+            auth
                 .createUserWithEmailAndPassword(email, password)
                 .then(userCredentials => {
                     return userCredentials.user.updateProfile({
