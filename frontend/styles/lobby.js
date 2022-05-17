@@ -35,7 +35,7 @@ export const styles = StyleSheet.create({
     },
     playerCard: {
         borderColor: '#E9446A',
-        borderWidth: 10,
+        borderWidth: normaliseWidth(5),
         height: normaliseWidth(150), // ensures equilateral
         width: normaliseWidth(150),
         fontSize: normaliseFont(15),
