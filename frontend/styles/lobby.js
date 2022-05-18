@@ -1,6 +1,6 @@
 import { StyleSheet, Dimensions, Platform, PixelRatio } from 'react-native';
 import { normaliseFont, normaliseHeight, normaliseWidth } from './normalize'
-import { useFonts, Roboto_400Regular } from '@expo-google-fonts/roboto';
+//import { useFonts, Roboto_400Regular } from '@expo-google-fonts/roboto';
 
 // // SCALE CONTENT ON DEVICES:
 // /*------------------------*/
@@ -36,8 +36,8 @@ export const styles = StyleSheet.create({
     playerCard: {
         borderColor: '#E9446A',
         borderWidth: normaliseWidth(5),
-        height: normaliseWidth(150), // ensures equilateral
-        width: normaliseWidth(150),
+        height: normaliseHeight(150), // ensures equilateral
+        width: normaliseHeight(150),
         fontSize: normaliseFont(15),
         marginHorizontal: normaliseWidth(17.5),
         flex:0, justifyContent: 'space-between',
@@ -68,14 +68,33 @@ export const styles = StyleSheet.create({
         flexGrow: 1,
     },
     footer: {
-        backgroundColor: 'grey',
+        backgroundColor: '#f0f0f0',
         position: 'absolute',
         height: normaliseHeight(200),
         width: normaliseWidth(415),
-        bottom: normaliseHeight(50)
+        bottom: normaliseHeight(50),
+        borderTopWidth: normaliseHeight(1),
+        borderRadius: 20, borderColor: 'grey',
     },
     menuOptions: {
         flex:1, justifyContent: 'space-around',
+    },
+    expandOptionsButton: {
+        backgroundColor: '#f0f0f0',
+        borderRadius: 4,
+        height: normaliseHeight(52),
+        alignItems: 'center',
+        textAlign: 'center',
+        justifyContent: 'space-evenly',
+        width: '100%',
+        flexDirection: 'row',
+        marginHorizontal: 0
+    },
+    flex3: {
+        flex: 3,
+    },
+    flex1: {
+        flex: 1,
     },
     optionsButton: {
         flex: 0,
@@ -85,11 +104,6 @@ export const styles = StyleSheet.create({
         height: normaliseHeight(40),
         alignItems: 'center',
         justifyContent: 'center',
-        //paddingHorizontal: 10,
-        //marginBottom: 20,
-        //position: 'absolute',
-        //left: 0, 
-        //bottom: 52,
     },
     readyButton: {
         marginHorizontal: normaliseWidth(30),
@@ -98,9 +112,6 @@ export const styles = StyleSheet.create({
         height: normaliseHeight(52),
         alignItems: 'center',
         justifyContent: 'center',
-        //position: 'absolute',
-        //left: 0, 
-        //bottom: 52,
     },
     gameCode: {
         fontSize: normaliseFont(75),
@@ -165,17 +176,26 @@ export const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginHorizontal: normaliseWidth(5),
     },
+    cardIcon: {
+        flex: 1,
+        textAlign: 'left',
+        fontSize: normaliseFont(20),
+        marginTop: normaliseWidth(3),
+        marginLeft: normaliseWidth(3),
+    },
+    cardFooter: {
+        flex: 0.1,
+    },
     cardSuit: {
         flex: 1,
         margin: 'auto',
         textAlign: 'center',
         fontSize: normaliseFont(35),
-        fontWeight: '500',
     },
     card1: {
         //width: 58,
         //height: 80,
-        marginRight: normaliseWidth(-50),
+        marginRight: normaliseWidth(-20),
         transform: [{ rotate: '-16deg' }],
     },
     card2: {

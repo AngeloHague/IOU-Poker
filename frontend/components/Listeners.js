@@ -1,10 +1,10 @@
-import {updatePlayers, renderPlayerHand, renderCommunityCards} from '../components/GameHelper'
+import {updatePlayers, renderPlayerHand, renderCommunityCards, renderPlayers} from '../components/GameHelper'
 
 // INITIATE ALL LISTENERS USING SINGLE FUNCTION:
 export function initListeners(component) {
     playerListener(component)
     //changeListener()
-    communityCardListener(component)
+    tableListener(component)
 }
 
 // LOBBY LISTENER: Listens for joining and leaving players 
@@ -29,25 +29,43 @@ export function playerListener(component){
                     updatePlayers(component, global.room.state.players) // render players in current state
                 } else if (change.field == 'chips') {
                     console.log(key, '\'s chips have changed from: ', change.previousValue, ' to ', change.value)
+                    if (key === global.room.sessionId) {component.setState({chips: change.value})}
+                    //player.chips = change.value
+                    updatePlayers(component, global.room.state.players) // render players in current state
+                    //renderPlayers(component.state, compon)
                 }
             });
         };
 
-        player.cards.onAdd = (card) => {
+        player.cards.onAdd = (card, idx) => {
             //player.cards.push(card)
-            console.log("Card added: ", card.value)
+            console.log("Card  (", card.value, ") added for: ", key)
             //console.log(player.cards.length)
-            renderPlayerHand(component, global.room.state);
-
+            // renderPlayerHand(component, global.room.state);
+            if (key === global.room.sessionId) {
+                //component.state.player_hand.push(card)
+                component.setState({ player_hand: [...component.state.player_hand, card] })
+                console.log('Added to player hand. No. of cards in hand: ', component.state.player_hand.length)
+            }
+            
             card.onChange = (change) => {
-                // reveal changes
-                // i.e. reveal cards at end of game
+                //console.log('Card cahnged: ', card, ' at: ', idx)
+                if (card.revealed === true) {
+                    console.log('Card revealed: ', card.value)
+                    let players = component.state.players
+                    let player = players.get(key)
+                    player.cards[idx] = card
+                    players.set(key, player)
+                component.setState({ players: players })}
             }
         }
 
         player.cards.onRemove = (card) => {
             console.log("Card removed: ", card)
-            renderPlayerHand(component, global.room.state);
+            component.setState(() => { 
+                let empty = []
+                return {player_hand: empty}
+            });
         }
 
         // force "onChange" to be called immediatelly
@@ -64,72 +82,77 @@ export function playerListener(component){
 }
 
 // COMMUNITY CARD LISTENERS
-export function communityCardListener(component){
-    global.room.state.community_cards.onAdd = (card) => {
-        //console.log('New community card dealt: ', card)
-        global.room.state.community_cards.push(card)
-        //console.log('New community cards: ', global.room.state.community_cards)
+export function tableListener(component){
+    global.room.state.community_cards.onAdd = (card, key) => {
+        console.log('New community card dealt: ', card.value, ' at ', key)
+        component.setState({ community_cards: [...component.state.community_cards, card] })
 
-        card.onChange = (change, key) => {
-            //console.log(change, ' card changed at ', key)
-            //console.log('Cards: ', global.room.state.community_cards)
-            renderCommunityCards(component, global.room.state);
-            // animate changes
+        card.onChange = (change, idx) => {
+            let cards = component.state.community_cards
+            cards[idx] = change.value
+            component.setState({ community_cards: cards })
         }
     }
     global.room.state.community_cards.onRemove = (card) => {
         console.log('Community card removed: ', card)
-    }
-}
-
-// LISTENS FOR STATE CHANGES
-export function changeListener() {
-    let chng_set = 0; // DEBUG PURPOSES
-    let chng_idx = 0; // DEBUG PURPOSES
-    room.state.onChange = (changes) => {
-        console.log('Room State Changes #', chng_set)
-        changes.forEach(change => {
-            // console.log('Change #', chng_idx);
-            // console.log(change.field);
-            // console.log(change.value);
-            // console.log(change.previousValue);
-            changeRouter(change)
-            chng_idx+=1 // DEBUG PURPOSES
+        component.setState(() => { 
+            let empty = []
+            return {community_cards: empty}
         });
-        //console.log('Room State Updated')
-        //console.log(room.state)
-        chng_set+=1 // DEBUG PURPOSES
     }
+    global.room.state.listen('pot', (value, previous) => {
+        component.setState({pot: value})
+    })
 }
 
+// // LISTENS FOR STATE CHANGES
+// export function changeListener() {
+//     let chng_set = 0; // DEBUG PURPOSES
+//     let chng_idx = 0; // DEBUG PURPOSES
+//     room.state.onChange = (changes) => {
+//         console.log('Room State Changes #', chng_set)
+//         changes.forEach(change => {
+//             // console.log('Change #', chng_idx);
+//             // console.log(change.field);
+//             // console.log(change.value);
+//             // console.log(change.previousValue);
+//             changeRouter(change)
+//             chng_idx+=1 // DEBUG PURPOSES
+//         });
+//         //console.log('Room State Updated')
+//         //console.log(room.state)
+//         chng_set+=1 // DEBUG PURPOSES
+//     }
+// }
 
 
-// ROUTES CHANGES TO RELEVANT FUNCTIONS
-export function changeRouter(change) {
-    switch(change.field) {
-        case 'current_player':
-            console.log('Current player changed from ', change.previousValue, ' to ', change.value)
-            break;
-        case 'community_cards':
-            console.log('Community Cards changed from ', change.previousValue, ' to ', change.value)
-            console.log(change)
-            handleCommuninityCards(change)
-            break;
-        default:
-            console.log('Other change occured')
-            break;
-    }
-}
 
-export function handleCommuninityCards(change) {
-    console.log(change.previousValue.length)
-    console.log(change.value.length)
-    if (change.previousValue.length < change.value.length) {
-        // cards have been dealt
-        global.room.state.community_cards = change.value
-        console.log('Cards have been dealt')
-    } else {
-        // 
-    }
-}
+// // ROUTES CHANGES TO RELEVANT FUNCTIONS
+// export function changeRouter(change) {
+//     switch(change.field) {
+//         case 'current_player':
+//             console.log('Current player changed from ', change.previousValue, ' to ', change.value)
+//             break;
+//         case 'community_cards':
+//             console.log('Community Cards changed from ', change.previousValue, ' to ', change.value)
+//             console.log(change)
+//             handleCommuninityCards(change)
+//             break;
+//         default:
+//             console.log('Other change occured')
+//             break;
+//     }
+// }
+
+// export function handleCommuninityCards(change) {
+//     console.log(change.previousValue.length)
+//     console.log(change.value.length)
+//     if (change.previousValue.length < change.value.length) {
+//         // cards have been dealt
+//         global.room.state.community_cards = change.value
+//         console.log('Cards have been dealt')
+//     } else {
+//         // 
+//     }
+// }
 
