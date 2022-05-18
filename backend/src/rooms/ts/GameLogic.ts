@@ -50,9 +50,9 @@ export function startGame(room: Room, state: GameState) {
 }
 
 async function incrementIndex(state: GameState, variable: any) {
+  variable+=1
   let idx = variable % state.active_players.length
   if (state.players.get(state.active_players[idx]).isOut) {
-    variable+=1
     incrementIndex(state, variable)
   } else return idx
 }
@@ -65,14 +65,17 @@ function nextRound(room: Room, state: GameState) {
   // assign dealer
   incrementIndex(state, state.dealer_idx).then((d_idx) => {
     state.dealer = state.active_players[d_idx]
+    console.log(state.dealer, ' is now the dealer.')
     // assign big blind player
     state.big_blind_idx = state.dealer_idx+1
     let bb_idx = incrementIndex(state, state.big_blind_idx).then((bb_idx) => {
       state.bb_player = state.active_players[bb_idx]
+      console.log(state.bb_player, ' is now the big blind.')
       // assign small blind player
-      state.small_blind_idx = state.dealer_idx+1
+      state.small_blind_idx = state.big_blind_idx+1
       let sb_idx = incrementIndex(state, state.small_blind_idx).then((sb_idx) => {
         state.sb_player = state.active_players[sb_idx]
+        console.log(state.sb_player, ' is now the small blind.')
         payBlind(state, state.bb_player, state.b_blind)
         payBlind(state, state.sb_player, state.s_blind)
         // assign first player
@@ -232,6 +235,7 @@ function playerRaise(room: Room, state: GameState, player: Player, amount: numbe
       player.current_bet += increase
       state.largest_bet = amount
       state.pot += increase
+      state.matched_players = 1
       console.log(player.sessionId, ' raised to: ', amount, '. Total Pot: ', state.pot)
       checkIfStageOver(room, state)
     } else {
@@ -242,50 +246,6 @@ function playerRaise(room: Room, state: GameState, player: Player, amount: numbe
     // amount not big enough
   }
 }
-
-function playerBet(room: Room, state: GameState, player: Player, amount: number) {
-  //
-}
-
-// function playerBet(room: Room, state: GameState, client: Client, amount: number) {
-//   if (amount < state.largest_bet && state.players.get(client.sessionId).chips >= state.largest_bet) {
-//     // bet too low
-//   } else if (amount > state.largest_bet && state.players.get(client.sessionId).chips + state.players.get(client.sessionId).current_bet == amount) {
-//     //all in
-//     state.players.get(client.sessionId).current_bet += amount
-//     state.players.get(client.sessionId).chips -= amount
-//     state.largest_bet = amount
-//     state.pot += amount
-//     state.matched_players = 1
-//     console.log(client.sessionId, " has gone all-in with: ", amount)
-//     checkIfStageOver(room, state)
-//   } else if (amount > state.largest_bet && state.players.get(client.sessionId).chips + state.players.get(client.sessionId).current_bet > state.largest_bet) {
-//     // new maximum
-//     state.players.get(client.sessionId).current_bet = amount
-//     state.players.get(client.sessionId).chips -= amount
-//     state.largest_bet = amount
-//     state.pot += amount
-//     state.matched_players = 1
-//     console.log(client.sessionId, " has raised to: ", amount)
-//     checkIfStageOver(room, state)
-//   } else if (amount == state.largest_bet && state.players.get(client.sessionId).chips + state.players.get(client.sessionId).current_bet >= state.largest_bet) {
-//     // matched bet
-//     state.players.get(client.sessionId).current_bet = amount
-//     state.players.get(client.sessionId).chips -= amount
-//     state.pot += amount
-//     state.matched_players +=1
-//     console.log(client.sessionId, " has called with: ", amount)
-//     checkIfStageOver(room, state)
-//   } else if (amount < state.largest_bet && state.players.get(client.sessionId).chips + state.players.get(client.sessionId).current_bet < state.largest_bet) {
-//     // split pot
-//     state.players.get(client.sessionId).current_bet = amount
-//     state.players.get(client.sessionId).chips -= amount
-//     state.pot += amount
-//     state.matched_players +=1
-//     console.log(client.sessionId, " has gone all-in with: ", amount)
-//     checkIfStageOver(room, state)
-//   }
-// }
 
 function nextPlayer(room: Room, state: GameState) {
   console.log('Determining next player...')
@@ -301,6 +261,12 @@ function nextPlayer(room: Room, state: GameState) {
     console.log('Next player set: ', key)
   }
   announceWhoseTurn(room, state);
+}
+
+function revealHands(state: GameState) {
+  state.players.forEach(player => {
+    player.cards.forEach(card => card.revealed = true)
+  });
 }
 
 function allocateWinnings(room: Room, state: GameState, winners: any[]) {
@@ -451,6 +417,7 @@ export function checkIfStageOver(room: Room, state: GameState) {
       //determineWinner(room, state)
       let winners = determineWinners(state)
       //console.log(winners)
+      revealHands(state)
       allocateWinnings(room, state, winners)
       // Reset after 5s
       let timeout = 5

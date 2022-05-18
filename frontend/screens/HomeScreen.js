@@ -3,7 +3,6 @@ import { View, Text, TextInput, StyleSheet, TouchableOpacity, KeyboardAvoidingVi
 import firebase from 'firebase/app'
 import 'firebase/auth'
 import * as Colyseus from "colyseus.js"
-import { preloadCards } from '../components/renderCards'
 import { MaterialCommunityIcons } from '@expo/vector-icons'; 
 import { normaliseHeight, normaliseWidth } from '../styles/normalize'
 
@@ -21,8 +20,6 @@ export default class HomeScreen extends Component {
     componentDidMount() {
         const {email, displayName, uid} = firebase.auth().currentUser
         this.setState({email, displayName, uid})
-
-        preloadCards()
     }
 
     signOutUser = () => {

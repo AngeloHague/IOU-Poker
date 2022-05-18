@@ -1,24 +1,38 @@
 import React, { Component } from 'react'
-import { Text, TextInput, TouchableOpacity, StyleSheet, View, KeyboardAvoidingView, Image } from 'react-native'
+import { View, Text, TouchableOpacity } from 'react-native'
 import { styles } from '../styles/lobby'
+import Card from './Card'
 
-export function Table(component) {
-    return (
-        <View>
-            {component.state.game_started &&
-            <View style={styles.roomCodeContainer}>
-                <Text style={styles.greeting}>{'Community Cards:'}</Text>
-                {component.state.community_cards_html}
-                <Text style={styles.greeting}>{component.state.pot}</Text>
-            </View>}
-            {component.state.game_started &&
-            <View style={styles.gameInfoContainer}>
-                <Text style={styles.greeting}>{'Your Cards:'}</Text>
-                <View style={styles.yourCardContainer}>
-                    {component.state.player_hand_html}
+export default class Table extends Component {
+    constructor(props) {
+        super(props)
+    }
+
+    componentDidMount() {
+        console.log('Table Mounted:',this.props.cards.length)
+    }
+
+    render() {
+        
+        if (this.props.cards.length == 5) {
+            return (
+            <View style={styles.commCardContainer}>
+                <Text style={styles.heading}>{'Community Cards:'}</Text>
+                <View style={{flexDirection: 'row', justifyContent: 'space-evenly'}}>
+                    <Card card={this.props.cards[0]} style={styles.card} />
+                    <Card card={this.props.cards[1]} style={styles.card} />
+                    <Card card={this.props.cards[2]} style={styles.card} />
+                    <Card card={this.props.cards[3]} style={styles.card} />
+                    <Card card={this.props.cards[4]} style={styles.card} />
                 </View>
-            </View>}
-            <View style={{ flex: 1 }} />
-        </View>
-    )
+                <Text style={styles.heading}>{this.props.pot}</Text>
+            </View>
+        )} else {return(
+            <View style={styles.commCardContainer}>
+                <Text style={styles.heading}>{'Community Cards:'}</Text>
+                <View style={{flexDirection: 'row', justifyContent: 'space-around'}}></View>
+                <Text style={styles.heading}>{this.props.pot}</Text>
+            </View>
+        )}
+    }
 }

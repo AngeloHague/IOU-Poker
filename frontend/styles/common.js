@@ -3,7 +3,8 @@ import { StyleSheet } from "react-native"
 export default StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'flex-end'
+        justifyContent: 'flex-end',
+        backgroundColor: '#f0f0f0',
     },
     navBar: {
         margin: 0,
