@@ -12,7 +12,6 @@
     "colyseus": "^0.14.20",
     "colyseus.js": "^0.14.13",
     "expo": "~41.0.1",
-    "expo-app-loading": "^2.0.0",
     "expo-status-bar": "~1.0.4",
     "firebase": "^8.9.0",
     "firebase-auth": "^0.1.2",
@@ -22,10 +21,11 @@
     "react-native": "https://github.com/expo/react-native/archive/sdk-41.0.0.tar.gz",
     "react-native-gesture-handler": "^1.10.3",
     "react-native-snap-carousel": "^3.9.1",
+    "react-native-svg": "12.1.0",
+    "react-native-svg-transformer": "^1.0.0",
     "react-native-web": "^0.16.3",
     "react-navigation": "^4.4.4",
-    "react-navigation-stack": "^2.10.4",
-    "socket.io-client": "^4.1.2"
+    "react-navigation-stack": "^2.10.4"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",

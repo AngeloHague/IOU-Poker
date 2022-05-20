@@ -26,6 +26,8 @@ import { normaliseFont, normaliseHeight, normaliseWidth } from './normalize'
 export const styles = StyleSheet.create({
     playerScroller: {
         borderBottomColor: '#8A8F9E', borderBottomWidth: StyleSheet.hairlineWidth,
+        backgroundColor: '#c1c9c4',
+        // backgroundColor: '#87c799',
     },
     playerContainer: {
         flex: 0,
@@ -65,10 +67,15 @@ export const styles = StyleSheet.create({
         //color: '#161F3D'
     },
     gameContainer: {
+        //backgroundColor: '#a9d6a5',
+        // backgroundColor: '#87c799',
+        // backgroundColor: '#a3bfab',
+        backgroundColor: '#c1c9c4',
         flexGrow: 1,
     },
     footer: {
-        backgroundColor: '#f0f0f0',
+        backgroundColor: '#a9d6a5',
+        //backgroundColor: '#f0f0f0',
         position: 'absolute',
         height: normaliseHeight(200),
         width: normaliseWidth(415),
@@ -80,7 +87,7 @@ export const styles = StyleSheet.create({
         flex:1, justifyContent: 'space-around',
     },
     expandOptionsButton: {
-        backgroundColor: '#f0f0f0',
+        //backgroundColor: '#f0f0f0',
         borderRadius: 4,
         height: normaliseHeight(52),
         alignItems: 'center',
@@ -107,9 +114,10 @@ export const styles = StyleSheet.create({
     },
     readyButton: {
         marginHorizontal: normaliseWidth(30),
+        marginTop: normaliseHeight(7.5),
         backgroundColor: '#E9446A',
         borderRadius: 4,
-        height: normaliseHeight(52),
+        height: normaliseHeight(45),
         alignItems: 'center',
         justifyContent: 'center',
     },

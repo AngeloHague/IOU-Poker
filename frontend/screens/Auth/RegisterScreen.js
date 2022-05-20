@@ -1,28 +1,40 @@
 import React, { Component } from 'react'
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, StatusBar, KeyboardAvoidingView, ScrollView } from 'react-native'
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, ScrollView } from 'react-native'
 import firebase from 'firebase/app'
 import 'firebase/auth'
 
-import { auth } from '../firebase'
+import { auth } from '../../firebase'
 
-export default class LoginScreen extends Component {
+export default class RegisterScreen extends Component {
     static navigationOptions = {
         headerShown: false
     }
     
     state = {
+        name: '',
         email: '',
         password: '',
+        confirm: '',
         errorMessage: null
     }
 
-    handleLogin = () => {
-        const { email, password } = this.state
-        // firebase
-        //     .auth()
-        auth
-            .signInWithEmailAndPassword(email, password)
-            .catch(error => this.setState({ errorMessage: error.message }))
+    handleSignUp = () => {
+        const { name, email, password, confirm } = this.state
+        if (password != confirm) {
+            this.setState({ errorMessage: 'Passwords do not match' })
+        }
+        else {
+            // firebase
+            //     .auth()
+            auth
+                .createUserWithEmailAndPassword(email, password)
+                .then(userCredentials => {
+                    return userCredentials.user.updateProfile({
+                        displayName: name
+                    })
+                })
+                .catch(error => this.setState({errorMessage: error.message}))
+        }
     }
 
     render() {
@@ -32,8 +44,7 @@ export default class LoginScreen extends Component {
                 style={styles.container}
             >
                 <ScrollView>
-                <StatusBar barStyle='light-content'></StatusBar>
-                <Text style={styles.greeting}>{'Hey there.\nCome on in.'}</Text>
+                <Text style={styles.greeting}>{'Right then.\nLet\'s make you an account.'}</Text>
 
                 <View style={styles.errorMessage}>
                     {this.state.errorMessage && <Text style={styles.error}>{this.state.errorMessage}</Text>}
@@ -41,6 +52,15 @@ export default class LoginScreen extends Component {
 
                 <View style={styles.form}>
                     <View>
+                        <Text style={styles.inputTitle}>Full Name</Text>
+                        <TextInput
+                            style={styles.input}
+                            textContentType='name'
+                            onChangeText={name => this.setState({ name })}
+                            value={this.state.name}
+                        />
+                    </View>
+                    <View style={{ marginTop: 32 }}>
                         <Text style={styles.inputTitle}>Email Address</Text>
                         <TextInput
                             style={styles.input}
@@ -56,23 +76,34 @@ export default class LoginScreen extends Component {
                         <TextInput
                             style={styles.input}
                             secureTextEntry
-                            textContentType='password'
                             autocapitalize='none'
+                            textContentType='password'
                             onChangeText={password => this.setState({ password })}
                             value={this.state.password}
                         />
                     </View>
+                    <View style={{ marginTop: 32 }}>
+                        <Text style={styles.inputTitle}>Confirm Password</Text>
+                        <TextInput
+                            style={styles.input}
+                            secureTextEntry
+                            autocapitalize='none'
+                            textContentType='password'
+                            onChangeText={confirm => this.setState({ confirm })}
+                            value={this.state.confirm}
+                        />
+                    </View>
                 </View>
 
-                <TouchableOpacity style={styles.button} onPress={this.handleLogin}>
-                    <Text style={{ color: '#FFF', fontWeight: '500' }}>Sign In</Text>
+                <TouchableOpacity style={styles.button} onPress={this.handleSignUp}>
+                    <Text style={{ color: '#FFF', fontWeight: '500' }}>Sign Up</Text>
                 </TouchableOpacity>
-                <TouchableOpacity
-                    style={{ alignSelf: 'center', marginTop: 32 }}
-                    onPress={() => this.props.navigation.navigate('Register')}
-                >
-                    <Text style={{ color: '#414959', fontSize: 13 }}>
-                        Don't have an account? <Text style={{ fontWeight: '500', color: '#E9446A' }}>Sign up here</Text>
+                <TouchableOpacity style={{ alignSelf: 'center', marginTop: 32 }}>
+                    <Text
+                    style={{ color: '#414959', fontSize: 13 }}
+                        onPress={() => this.props.navigation.goBack()}
+                    >
+                        Already have an account? <Text style={{ fontWeight: '500', color: '#E9446A' }}>Sign In</Text>
                     </Text>
                 </TouchableOpacity>
                 <View style={{ flex: 1 }} />
@@ -84,7 +115,8 @@ export default class LoginScreen extends Component {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1
+        flex: 1,
+        justifyContent: 'flex-end'
     },
     greeting: {
         marginTop: 32,

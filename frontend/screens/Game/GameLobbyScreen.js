@@ -2,19 +2,19 @@ import React, { Component } from 'react'
 import { Text, TextInput, TouchableOpacity, View, KeyboardAvoidingView, Image } from 'react-native'
 //import firebase from 'firebase/app'
 //import 'firebase/auth'
-import { auth } from '../firebase'
+import { auth } from '../../firebase'
 import { ScrollView } from 'react-native-gesture-handler'
 import Carousel, { Pagination } from 'react-native-snap-carousel'
-import common from '../styles/common'
-import { renderPlayers, playerAction, renderPlayerHand } from '../components/GameHelper'
-import { initListeners } from '../components/Listeners'
-import { styles } from '../styles/lobby'
-import { LobbyInfo } from '../components/LobbyInfo'
-import { normaliseHeight } from '../styles/normalize'
-import PlayerHand from '../components/PlayerHand'
-import PlayerCards from '../components/PlayerCards'
-import GameOptions from '../components/GameOptions'
-import Table from '../components/Table'
+import common from '../../styles/common'
+import { renderPlayers, playerAction, renderPlayerHand } from '../../components/GameHelper'
+import { initListeners } from '../../components/Listeners'
+import { styles } from '../../styles/lobby'
+import { LobbyInfo } from '../../components/LobbyInfo'
+import { normaliseHeight } from '../../styles/normalize'
+import PlayerHand from '../../components/PlayerHand'
+import PlayerCards from '../../components/PlayerCards'
+import GameOptions from '../../components/GameOptions'
+import Table from '../../components/Table'
 
 export default class GameLobbyScreen extends Component {
     static navigationOptions = {
@@ -100,10 +100,10 @@ export default class GameLobbyScreen extends Component {
 
     render() {
         return (
-            <View style={common.container}>
+            <View style={[common.container, {backgroundColor: '#c1c9c4'}]}>
                 <View style={common.navBar}>
                     <TouchableOpacity style={common.navButton} onPress={() => this.props.navigation.goBack()}><Text style={{ color: '#FFF', fontWeight: '500',  textAlign: 'center'}}>Go Back</Text></TouchableOpacity>
-                    <Image style={common.navLogo} source={require('../assets/Logo.png')} />
+                    <Image style={common.navLogo} source={require('../../assets/Logo.png')} />
                     <TouchableOpacity style={common.navButton}><Text style={{ color: '#FFF', fontWeight: '500',  textAlign: 'center'}}>Chat</Text></TouchableOpacity>
                 </View>
                 <View>

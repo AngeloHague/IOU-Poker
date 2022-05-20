@@ -5,6 +5,8 @@ import 'firebase/auth'
 import * as Colyseus from "colyseus.js"
 import { MaterialCommunityIcons } from '@expo/vector-icons'; 
 import { normaliseHeight, normaliseWidth } from '../styles/normalize'
+import styles from '../styles/common'
+import Background from '../assets/background.svg'
 
 export default class HomeScreen extends Component {
     static navigationOptions = {
@@ -26,9 +28,6 @@ export default class HomeScreen extends Component {
         firebase.auth().signOut()
     }
 
-    
-
-
     render() {
         return (
             <KeyboardAvoidingView
@@ -39,18 +38,18 @@ export default class HomeScreen extends Component {
                     <Image style={styles.bigLogo} source={require('../assets/Logo.png')} />
                     <Text style={styles.greeting}>Hi {this.state.displayName}!</Text>
                 </View>
-                <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-evenly'}}>
+                <View style={{flex: 1, width: '100%', marginBottom: normaliseHeight(32), flexDirection: 'row', justifyContent: 'space-evenly'}}>
                     <View styles={{width: normaliseWidth(25), height: normaliseHeight(25)}}>
                         <Text><MaterialCommunityIcons name="cards-club" size={24} color="black" /></Text>
                     </View>
                     <View styles={{width: normaliseWidth(25), height: normaliseHeight(25)}}>
-                        <Text><MaterialCommunityIcons name="cards-diamond" size={24} color="red" /></Text>
+                        <Text><MaterialCommunityIcons name="cards-diamond" size={24} color="#E9446A" /></Text>
                     </View>
                     <View styles={{width: normaliseWidth(25), height: normaliseHeight(25)}}>
                         <Text><MaterialCommunityIcons name="cards-spade" size={24} color="black" /></Text>
                     </View>
                     <View styles={{width: normaliseWidth(25), height: normaliseHeight(25)}}>
-                        <Text><MaterialCommunityIcons name="cards-heart" size={24} color="red" /></Text>
+                        <Text><MaterialCommunityIcons name="cards-heart" size={24} color="#E9446A" /></Text>
                     </View>
                 </View>
                 {/*<TouchableOpacity
@@ -60,25 +59,25 @@ export default class HomeScreen extends Component {
                     <Text style={{ color: '#FFF', fontWeight: '500' }}>Play Game</Text>
         </TouchableOpacity>*/}
                 <TouchableOpacity
-                    style={styles.button}
+                    style={[styles.button, {marginVertical: normaliseHeight(10)}]}
                     onPress={() => this.props.navigation.navigate('GameCreate')}
                 >
                     <Text style={{ color: '#FFF', fontWeight: '500' }}>Create Game</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                    style={styles.button}
+                    style={[styles.button, {marginVertical: normaliseHeight(10)}]}
                     onPress={() => this.props.navigation.navigate('GameJoin')}
                 >
                     <Text style={{ color: '#FFF', fontWeight: '500' }}>Join Game</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                    style={styles.button}
+                    style={[styles.button, {marginVertical: normaliseHeight(10)}]}
                     onPress={() => this.props.navigation.navigate('Debt')}
                 >
                     <Text style={{ color: '#FFF', fontWeight: '500' }}>Manage Debts</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                    style={styles.button}
+                    style={[styles.button, {marginVertical: normaliseHeight(10)}]}
                     onPress={this.signOutUser}
                 >
                         <Text style={{ color: '#FFF', fontWeight: '500' }}>Log Out</Text>
@@ -91,43 +90,43 @@ export default class HomeScreen extends Component {
     }
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'flex-end'
-    },
-    bigLogo: {
-      width: 189,
-      height: 150,
-      marginTop: 50
-    },
-    greeting: {
-        marginTop: 32,
-        fontSize: 18,
-        fontWeight: '400',
-        textAlign: 'center'
-    },
-    mainMenu: {
-        marginTop: 48,
-        marginBottom: 48,
-        marginHorizontal: 30,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    divider: {
-        borderBottomColor: '#8A8F9E',
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        height: 40,
-        fontSize: 15,
-        color: '#161F3D'
-    },
-    button: {
-        marginHorizontal: 30,
-        marginVertical: 10,
-        backgroundColor: '#E9446A',
-        borderRadius: 4,
-        height: 52,
-        alignItems: 'center',
-        justifyContent: 'center'
-    }
-})
+// const styles = StyleSheet.create({
+//     container: {
+//         flex: 1,
+//         justifyContent: 'flex-end'
+//     },
+//     bigLogo: {
+//       width: 189,
+//       height: 150,
+//       marginTop: 50
+//     },
+//     greeting: {
+//         marginTop: 32,
+//         fontSize: 18,
+//         fontWeight: '400',
+//         textAlign: 'center'
+//     },
+//     mainMenu: {
+//         marginTop: 48,
+//         marginBottom: 48,
+//         marginHorizontal: 30,
+//         alignItems: 'center',
+//         justifyContent: 'center',
+//     },
+//     divider: {
+//         borderBottomColor: '#8A8F9E',
+//         borderBottomWidth: StyleSheet.hairlineWidth,
+//         height: 40,
+//         fontSize: 15,
+//         color: '#161F3D'
+//     },
+//     button: {
+//         marginHorizontal: 30,
+//         marginVertical: 10,
+//         backgroundColor: '#E9446A',
+//         borderRadius: 4,
+//         height: 52,
+//         alignItems: 'center',
+//         justifyContent: 'center'
+//     }
+// })

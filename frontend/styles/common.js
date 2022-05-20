@@ -1,10 +1,37 @@
 import { StyleSheet } from "react-native"
+import { normaliseHeight, normaliseWidth } from "./normalize"
 
 export default StyleSheet.create({
+    
     container: {
         flex: 1,
         justifyContent: 'flex-end',
-        backgroundColor: '#f0f0f0',
+        //backgroundColor: '#f0f0f0',
+        backgroundColor: '#cfcfcf',
+    },
+    bigLogo: {
+      width: normaliseHeight(252),
+      height: normaliseHeight(200),
+      marginTop: normaliseHeight(50)
+    },
+    greeting: {
+        marginTop: normaliseHeight(20),
+        fontSize: 18,
+        fontWeight: '400',
+        textAlign: 'center'
+    },
+    mainMenu: {
+        marginVertical: normaliseHeight(48),
+        marginHorizontal: normaliseWidth(30),
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    divider: {
+        borderBottomColor: '#8A8F9E',
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        height: 40,
+        fontSize: 15,
+        color: '#161F3D'
     },
     navBar: {
         margin: 0,
@@ -26,6 +53,7 @@ export default StyleSheet.create({
     },
     navButton: {
         backgroundColor: '#E9446A',
+        //backgroundColor: '#6a89b8',
         borderRadius: 4,
         height: 30,
         width: 100,
@@ -63,6 +91,7 @@ export default StyleSheet.create({
     button: {
         marginHorizontal: 30,
         backgroundColor: '#E9446A',
+        //backgroundColor: '#6a89b8',
         borderRadius: 4,
         height: 52,
         alignItems: 'center',

@@ -28,13 +28,13 @@ export default class Card extends Component {
                     break;
                 case 'D':
                     _icon = (<MaterialCommunityIcons name="cards-diamond" size={iconSize} color="red" />)
-                    _suit = (<MaterialCommunityIcons name="cards-diamond" size={suitSize} color="red" />)
-                    _color = 'red'
+                    _suit = (<MaterialCommunityIcons name="cards-diamond" size={suitSize} color="#E9446A" />)
+                    _color = '#E9446A'
                     break;
                 case 'H':
                     _icon = (<MaterialCommunityIcons name="cards-heart" size={iconSize} color="red" />)
-                    _suit = (<MaterialCommunityIcons name="cards-heart" size={suitSize} color="red" />)
-                    _color = 'red'
+                    _suit = (<MaterialCommunityIcons name="cards-heart" size={suitSize} color="#E9446A" />)
+                    _color = '#E9446A'
                     break;
                 case 'S':
                     _icon = (<MaterialCommunityIcons name="cards-spade" size={iconSize} color="black" />)
