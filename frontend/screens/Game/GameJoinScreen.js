@@ -3,7 +3,7 @@ import { Text, TextInput, TouchableOpacity, StyleSheet, View, KeyboardAvoidingVi
 import firebase from 'firebase/app'
 import 'firebase/auth'
 import { ScrollView } from 'react-native-gesture-handler'
-import common from '../styles/common'
+import common from '../../styles/common'
 
 export default class GameJoinScreen extends Component {
     static navigationOptions = {
@@ -56,7 +56,7 @@ export default class GameJoinScreen extends Component {
                 behavior={Platform.OS === "ios" ? "padding" : "height"} style={common.container}>
                 <View style={common.navBar}>
                     <TouchableOpacity style={common.navButton} onPress={() => this.props.navigation.goBack()}><Text style={{ color: '#FFF', fontWeight: '500',  textAlign: 'center'}}>Go Back</Text></TouchableOpacity>
-                    <Image style={common.navLogo} source={require('../assets/Logo.png')} />
+                    <Image style={common.navLogo} source={require('../../assets/Logo.png')} />
                     <TouchableOpacity style={common.navButton} disabled={true}><Text style={{ color: '#FFF', fontWeight: '500',  textAlign: 'center'}}></Text></TouchableOpacity>
                 </View>
                 <ScrollView style={{marginTop: 100}}>

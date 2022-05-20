@@ -4,13 +4,13 @@ import { Text } from 'react-native'
 import { createAppContainer, createSwitchNavigation, createSwitchNavigator } from 'react-navigation'
 import { createStackNavigator } from 'react-navigation-stack'
 // SCREENS:
-import LoadingScreen from './screens/LoadingScreen'
-import LoginScreen from './screens/LoginScreen'
-import RegisterScreen from './screens/RegisterScreen'
+import LoadingScreen from './screens/Auth/LoadingScreen'
+import LoginScreen from './screens/Auth/LoginScreen'
+import RegisterScreen from './screens/Auth/RegisterScreen'
 import HomeScreen from './screens/HomeScreen'
-import GameCreateScreen from './screens/GameCreateScreen'
-import GameJoinScreen from './screens/GameJoinScreen'
-import GameLobbyScreen from './screens/GameLobbyScreen'
+import GameCreateScreen from './screens/Game/GameCreateScreen'
+import GameJoinScreen from './screens/Game/GameJoinScreen'
+import GameLobbyScreen from './screens/Game/GameLobbyScreen'
 import DebtScreen from './screens/DebtScreen'
 // EXPO:
 import { useFonts, Roboto_400Regular } from '@expo-google-fonts/roboto';
@@ -54,6 +54,7 @@ let [fontsLoaded] = useFonts({
 });
 
 if (!fontsLoaded) {
+  console.log('Loading fonts')
   return (
     <>
       <Text>Installing</Text>

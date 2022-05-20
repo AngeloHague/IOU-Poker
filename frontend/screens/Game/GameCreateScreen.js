@@ -3,7 +3,8 @@ import { Text, TextInput, TouchableOpacity, StyleSheet, View, KeyboardAvoidingVi
 import firebase from 'firebase/app'
 import 'firebase/auth'
 import { ScrollView } from 'react-native-gesture-handler'
-import common from '../styles/common'
+import common from '../../styles/common'
+import { auth }  from '../../firebase'
 
 export default class GameCreateScreen extends Component {
     static navigationOptions = {
@@ -38,7 +39,7 @@ export default class GameCreateScreen extends Component {
                 this.setState({ errorMessage: 'Please ensure that the Starting Chips, Big Blind and Small Blind fields all have values.' })
                 this.creating = false
             } else {
-                let { uid, displayName } = firebase.auth().currentUser
+                let { uid, displayName } = auth.currentUser
                 try {
                     if (!stake || stake == ' ') stake = null
                     if (!amount || amount == ' ') amount = null
@@ -71,7 +72,7 @@ export default class GameCreateScreen extends Component {
             behavior={Platform.OS === "ios" ? "padding" : "height"} style={common.container}>
                 <View style={common.navBar}>
                     <TouchableOpacity style={common.navButton} onPress={() => this.props.navigation.goBack()}><Text style={{ color: '#FFF', fontWeight: '500',  textAlign: 'center'}}>Go Back</Text></TouchableOpacity>
-                    <Image style={common.navLogo} source={require('../assets/Logo.png')} />
+                    <Image style={common.navLogo} source={require('../../assets/Logo.png')} />
                     <TouchableOpacity style={common.navButton} disabled={true}><Text style={{ color: '#FFF', fontWeight: '500',  textAlign: 'center'}}></Text></TouchableOpacity>
                 </View>
                 <ScrollView>
