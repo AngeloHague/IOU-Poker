@@ -71,6 +71,7 @@ export class GameState extends Schema {
   betting_players = new Map()
   folded_players = 0
   matched_players = 0
+  all_in_players = 0
 }
 
 export function readCard(card: Card) {

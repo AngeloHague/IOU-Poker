@@ -7,6 +7,7 @@ import { Entypo } from '@expo/vector-icons'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { auth } from '../firebase'
 import { poker_red } from '../styles/common'
+import { Raise } from './Modal'
 
 class ModalHelp extends PureComponent {
     constructor(props) {
@@ -86,12 +87,6 @@ export default class GameOptions extends PureComponent {
         playerAction(global.room, 'check', 0)
     }
 
-    playerBet = (amount) => {
-        console.log(auth.currentUser.uid, ' is raising ', amount)
-        //global.room.send("playerTurn", {action: 'bet', amount: amount})
-        playerAction(global.room, 'raise', amount)
-    }
-
     playerFold = () => {
         console.log(auth.currentUser.uid, ' is folding ')
         //global.room.send("playerTurn", {action: 'fold'})
@@ -134,6 +129,7 @@ export default class GameOptions extends PureComponent {
                             </Text>
                         </TouchableOpacity>
                         <ModalHelp modalVisible={this.state.show_help} setModalVisible={this.showHelp} />
+                        <Raise current_bet={this.props.current_bet} chips={this.props.chips} modalVisible={this.state.show_raise} setModalVisible={this.showRaise} />
                         <TouchableOpacity onPress={this.showHelp}>
                             <Text style={{ color: 'black', fontWeight: '500', width: normaliseWidth(47), textAlign: 'center'  }}>
                                 <MaterialCommunityIcons name="help-circle-outline" size={normaliseWidth(32)} color="black" />
@@ -146,7 +142,7 @@ export default class GameOptions extends PureComponent {
                         <Text style={{ color: '#FFF', fontWeight: '500' }}>Check</Text>
                     </TouchableOpacity>}
                     {this.props.game_started && <View>
-                    <TouchableOpacity style={styles.optionsButton} onPress={() =>{this.playerBet(100)}}>
+                    <TouchableOpacity style={styles.optionsButton} onPress={this.showRaise}>
                         <Text style={{ color: '#FFF', fontWeight: '500' }}>Raise</Text>
                     </TouchableOpacity>
                     </View>

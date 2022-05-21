@@ -42,6 +42,12 @@ export function playerListener(component){
                     //player.chips = change.value
                     updatePlayers(component, global.room.state.players) // render players in current state
                     //renderPlayers(component.state, compon)
+                } else if (change.field == 'current_bet') {
+                    console.log(key, '\'s chips have changed from: ', change.previousValue, ' to ', change.value)
+                    if (key === global.room.sessionId) component.setState({current_bet: player['current_bet']})
+                    //player.chips = change.value
+                    updatePlayers(component, global.room.state.players) // render players in current state
+                    //renderPlayers(component.state, compon)
                 }
             });
         };
@@ -111,6 +117,10 @@ export function tableListener(component){
     }
     global.room.state.listen('pot', (value, previous) => {
         component.setState({pot: value})
+    })
+    global.room.state.listen('current_player', (value, previous) => {
+        console.log('Current player is now: ', value)
+        component.setState({current_player: value})
     })
 }
 

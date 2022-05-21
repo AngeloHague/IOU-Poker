@@ -154,7 +154,7 @@ export function playerTurn (room: Room, state: GameState, client: Client, turn: 
     if (turn.action == 'fold') {
       // FOLD
       console.log(client.sessionId, " chose to fold")
-      playerFold(room, state, client)
+      playerFold(room, state, state.players.get(client.sessionId))
     } else if (turn.action == 'check') {
       console.log(client.sessionId, " chose to check")
       playerCheck(room, state, state.players.get(client.sessionId))
@@ -217,26 +217,26 @@ function playerAllIn(room: Room, state: GameState, player: Player) {
   player.current_bet += amount
   player.chips -= amount
   player.isAllIn = true
-  if (amount > state.largest_bet) {
-    state.largest_bet = amount
+  if (player.current_bet > state.largest_bet) {
+    state.largest_bet = player.current_bet
     state.matched_players = 1
   } else state.matched_players+=1
+  state.all_in_players += 1
   state.pot += amount
   console.log(player.sessionId, ' went all-in with: ', amount, '. Total Pot: ', state.pot)
   checkIfStageOver(room, state)
 }
 
 function playerRaise(room: Room, state: GameState, player: Player, amount: number) {
-  if (amount == player.chips && amount > state.largest_bet) {
+  if (amount == player.chips && player.current_bet + amount > state.largest_bet) {
     playerAllIn(room, state, player)
-  } else if (amount > state.largest_bet) {
-    let increase = amount - player.current_bet
-    if (increase <= player.chips) {
-      player.current_bet += increase
+  } else if (player.current_bet + amount > state.largest_bet) {
+    if (amount <= player.chips) {
+      player.current_bet += amount
       state.largest_bet = amount
-      state.pot += increase
+      state.pot += amount
       state.matched_players = 1
-      console.log(player.sessionId, ' raised to: ', amount, '. Total Pot: ', state.pot)
+      console.log(player.sessionId, ' raised by: ', amount, '. Total Pot: ', state.pot)
       checkIfStageOver(room, state)
     } else {
       // player cannot afford
@@ -249,6 +249,7 @@ function playerRaise(room: Room, state: GameState, player: Player, amount: numbe
 
 function nextPlayer(room: Room, state: GameState) {
   console.log('Determining next player...')
+  console.log('%s players total: %s are folded, %s are all-in',state.active_players.length, state.folded_players, state.all_in_players)
   state.player_idx+=1
   let idx = state.player_idx % state.active_players.length
   let key = state.active_players[idx]
@@ -383,6 +384,29 @@ export function foldWin(room: Room, state: GameState) {
   return winners
 }
 
+function revealCommunityCards(amount: string, state: GameState) {
+  switch(amount) {
+    case('flop'):
+      state.community_cards[0].revealed = true
+      state.community_cards[1].revealed = true
+      state.community_cards[2].revealed = true
+      break;
+    case('turn'):
+      state.community_cards[3].revealed = true
+      break;
+    case('river'):
+      state.community_cards[4].revealed = true
+      break;
+    case('all'):
+      state.community_cards[0].revealed = true
+      state.community_cards[1].revealed = true
+      state.community_cards[2].revealed = true
+      state.community_cards[3].revealed = true
+      state.community_cards[4].revealed = true
+      break;
+  }
+}
+
 export function checkIfStageOver(room: Room, state: GameState) {
   // if everyone else has folded, last player remaining wins:
   if (state.active_players.length == state.folded_players-1) {
@@ -390,8 +414,44 @@ export function checkIfStageOver(room: Room, state: GameState) {
     let winners = foldWin(room, state)
     allocateWinnings(room, state, winners)
     console.log('All other players have folded. Winner is: ', winners[0])
+  } else if (state.all_in_players == state.active_players.length) {
+    // all players are all in
+    // reveal remaining cards
+    if (state.round_stage == 0) {
+      state.community_cards[0].revealed = true
+      state.community_cards[1].revealed = true
+      state.community_cards[2].revealed = true
+      state.community_cards[3].revealed = true
+      state.community_cards[4].revealed = true
+    }
+    else if (state.round_stage == 1) {
+      // reveal turn
+      console.log('Revealing turn...')
+      state.community_cards[3].revealed = true
+      state.community_cards[4].revealed = true
+    }
+    else if (state.round_stage == 2) {
+      // reveal river
+      console.log('Revealing river...')
+      state.community_cards[4].revealed = true
+    }
+    // determine winner
+    let winners = determineWinners(state)
+    revealHands(state)
+    allocateWinnings(room, state, winners)
+    // Reset after 5s
+    let timeout = 5
+    var timer = setInterval(function () {
+      if (timeout <= 0) {
+        clearInterval(timer)
+        roundReset(room, state) // reset after 5s
+      }
+      console.log('Resetting round in: ', timeout)
+      timeout--
+    }, 1000);
+    if (timeout <= 0) roundReset(room, state) // reset after 5s
   }
-  // Otherwise wait until each player has bet equally or folded:
+  // Otherwise wait until each player has bet equally, folded or is all-in:
   else if (state.matched_players == state.active_players.length - state.folded_players) {
     console.log('Progressing to next stage:')
     // progress round to next stage
@@ -439,7 +499,7 @@ export function checkIfStageOver(room: Room, state: GameState) {
   nextPlayer(room, state)
 }
 
-export function roundReset(room: Room, state: GameState) {
+function checkIfGameConcluded(state: GameState) {
   let playersOut = 0
   console.log('Resetting round')
   state.players.forEach((player) => {
@@ -447,23 +507,34 @@ export function roundReset(room: Room, state: GameState) {
     player.current_bet = 0
     player.isFolded = false
     player.isAllIn = false
-    if (player.isOut) playersOut+=1
+    if (player.chips === 0 || player.isOut) playersOut+=1
   });
-  if (playersOut == state.active_players.length-1)
+  console.log('%s / %s players are out.', playersOut, state.active_players.length)
+  return (playersOut == state.active_players.length-1) ? true : false
+}
+
+export function roundReset(room: Room, state: GameState) {
+  if (checkIfGameConcluded(state))
   {
     // game is over
     console.log('Game Over: Only one player remaining')
+    concludeGame(room, state)
   } else {
     // reset variables
     state.largest_bet = 0
     state.pot = 0
     state.folded_players = 0
     state.matched_players = 0
+    state.all_in_players = 0
     state.round_stage = 0
     //state.dealer_idx+=1
     state.community_cards = new ArraySchema<Card>()
     nextRound(room, state)
   }
+}
+
+function concludeGame(room: Room, state: GameState) {
+  // connect to firebase and add debt
 }
 
 export function getPlayerUID(state: GameState, clientID: string) {

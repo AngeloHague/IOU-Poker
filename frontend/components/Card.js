@@ -6,9 +6,9 @@ import { normaliseFont, normaliseWidth } from '../styles/normalize'
 import { poker_red } from '../styles/common'
 
 export default class Card extends Component {
-    componentDidUpdate() {
-        console.log('Card component updated')
-    }
+    // componentDidUpdate() {
+    //     console.log('Card component updated')
+    // }
 
     render() {
         if (this.props.card.value == undefined) {

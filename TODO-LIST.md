@@ -1,13 +1,12 @@
 # To-Do List
-<ol>
-<li>Implement Raise & all-in functions on client side</li>
-<li>Make client communicate information about the game to the player (i.e. whose turn, what players do, who wins, etc.)</li>
-<li>Connect Server with Firebase to track debts after game is complete</li>
-<li>Create Debts Screen</li>
-<li>Integrate phone exclusive features (e.g. vibration, double tapping to knock, detect if phone face-down to fold)</li>
-<li>Fix Player Cards not re-rendering upon Players leaving lobbies </li>
-<li>Add list of available hands in help section</li>
-<li>Create Controls help screen</li>
-<li>In-game Chat</li>
-<li>Potentially add Friend System, tho optional due to Room Code system</li>
-</ol>
+
+1. ~~Implement Raise & all-in functions on client side~~
+2. Make client communicate information about the game to the player (i.e. whose turn, what players do, who wins, etc.)
+3. Connect Server with Firebase to track debts after game is complete
+4. Create Debts Screen
+5. Integrate phone exclusive features (e.g. vibration, double tapping to knock, detect if phone face-down to fold)
+6. Fix Player Cards not re-rendering upon Players leaving lobbies 
+7. Add list of available hands in help section
+8. Create Controls help screen
+9. In-game Chat
+10. Potentially add Friend System, tho optional due to Room Code system
