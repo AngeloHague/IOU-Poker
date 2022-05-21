@@ -120,7 +120,8 @@ export const styles = StyleSheet.create({
         fontFamily: 'Oswald_400Regular',
         fontWeight: 'bold',
         textAlign: 'center',
-        color: '#c0c0c0',
+        //color: '#c0c0c0',
+        color: '#fff',
     },
     pot: {
         marginVertical: normaliseHeight(8),
@@ -276,13 +277,16 @@ export const styles = StyleSheet.create({
     modalText: {
         fontSize: normaliseFont(16),
     },
+    raiseAmount: {
+        fontSize: normaliseFont(24),
+    },
     modalHelp: {
         width: normaliseWidth(300),
-        height: normaliseWidth(150),
+        height: normaliseHeight(150),
     },
     modalRaise: {
-        width: normaliseWidth(250),
-        height: normaliseWidth(100),
+        width: normaliseWidth(375),
+        height: normaliseHeight(225),
     },
     modalButton: {
         flex: 0,

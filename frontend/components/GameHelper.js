@@ -26,24 +26,18 @@ export function updatePlayers(component, players) {
     //const _players = []
     const _players = component.state.players
     players.forEach((player) => {
-    //console.log(`${key}'s name: ${player['name']}`)
-    //console.log(`${key}'s uid: ${player['uid']}`)
-    //console.log(`${key}'s ready state: ${player['ready']}`)
         const _player = {
             name: player['name'],
             uid: player['uid'],
             sid: player['sessionId'],
             ready: player['ready'],
             chips: player['chips'],
+            current_bet: player['current_bet'],
             folded: player['folded'],
             cards: player['cards'],
         }
-    //console.log(_player)
-    //_players.push(_player)
         _players.set(_player.sid, _player)
-    //component.setState(players.set(_player.sid, _player))
     })
-    //component.setState({player_html: renderPlayers(component.state, _players)})
     component.setState({players: _players})
 }
 

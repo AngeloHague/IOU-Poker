@@ -40,8 +40,11 @@ export default class GameLobbyScreen extends Component {
             pot: 0,
             player_hand: [],
             community_cards: [],
-            player_hand_html: (<View></View>),
-            community_cards_html: (<View></View>),
+            dealer: null,
+            big_blind: null,
+            small_blind: null,
+            current_player: null,
+            current_bet: 0,
         }
     }
 
@@ -112,7 +115,7 @@ export default class GameLobbyScreen extends Component {
                 <View>
                 <ScrollView horizontal={true} style={styles.playerScroller}>
                     {<View style={{margin: 0}}>
-                        <PlayerCards players={this.state.players} />
+                        <PlayerCards players={this.state.players} current_player={this.state.current_player} />
                     </View>}
                 </ScrollView>
                 </View>
@@ -131,7 +134,7 @@ export default class GameLobbyScreen extends Component {
                         </View>}
                     </View>
                 </View>
-                <GameOptions chips={this.state.chips} game_started={this.state.game_started} show_options={this.state.show_options} showOptions={this.showOptions} changeReadyState={this.changeReadyState} />
+                <GameOptions current_bet={this.state.current_bet} chips={this.state.chips} game_started={this.state.game_started} show_options={this.state.show_options} showOptions={this.showOptions} changeReadyState={this.changeReadyState} />
             </View>
         )
     }

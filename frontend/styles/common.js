@@ -8,6 +8,7 @@ export default StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: 'flex-end',
+        position: "relative"
         //backgroundColor: '#f0f0f0',
         //backgroundColor: '#cfcfcf',
     },

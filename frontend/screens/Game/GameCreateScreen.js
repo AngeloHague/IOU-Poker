@@ -109,7 +109,7 @@ export default class GameCreateScreen extends Component {
                             style={common.input}
                             defaultValue='3000'
                             keyboardType='numeric'
-                            onChangeText={startingStack => this.setState({ mobile: startingStack.replace(/[^0-9]/g, '') })}
+                            onChangeText={startingStack => this.setState({ startingStack: startingStack.replace(/[^0-9]/g, '') })}
                             value={this.state.startingStack}
                         />
                     </View>
@@ -119,7 +119,7 @@ export default class GameCreateScreen extends Component {
                             style={common.input}
                             defaultValue='50'
                             keyboardType='numeric'
-                            onChangeText={bigBlind => this.setState({ mobile: bigBlind.replace(/[^0-9]/g, '') })}
+                            onChangeText={bigBlind => this.setState({ bigBlind: bigBlind.replace(/[^0-9]/g, '') })}
                             value={this.state.bigBlind}
                         />
                     </View>
@@ -129,7 +129,7 @@ export default class GameCreateScreen extends Component {
                             style={common.input}
                             defaultValue='25'
                             keyboardType='numeric'
-                            onChangeText={smallBlind => this.setState({ mobile: smallBlind.replace(/[^0-9]/g, '') })}
+                            onChangeText={smallBlind => this.setState({ smallBlind: smallBlind.replace(/[^0-9]/g, '') })}
                             value={this.state.smallBlind}
                         />
                     </View>
