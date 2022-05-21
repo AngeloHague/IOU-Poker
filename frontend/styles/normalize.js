@@ -8,8 +8,8 @@ const {
   } = Dimensions.get('window');
   
   // based on pixel 3a (primary test device) scale
-  const scale_width = SCREEN_WIDTH / 412;
-  const scale_height = SCREEN_HEIGHT / 846;
+  const scale_width = SCREEN_WIDTH / 393;
+  const scale_height = SCREEN_HEIGHT / 760;
   
   export function normalise(size) {
     const newSize = size * scale 

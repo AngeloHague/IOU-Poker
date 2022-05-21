@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, ScrollView } from 'react-native'
 import firebase from 'firebase/app'
 import 'firebase/auth'
+import Background from '../../assets/background.svg'
 
 import { auth } from '../../firebase'
 
@@ -43,6 +44,7 @@ export default class RegisterScreen extends Component {
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
                 style={styles.container}
             >
+            <Background position='absolute' preserveAspectRatio="xMinYMin slice"/>
                 <ScrollView>
                 <Text style={styles.greeting}>{'Right then.\nLet\'s make you an account.'}</Text>
 

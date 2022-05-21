@@ -5,6 +5,15 @@ export function initListeners(component) {
     playerListener(component)
     //changeListener()
     tableListener(component)
+    
+    room.onMessage("startGame", (counter) => {
+        console.log('Starting game')
+        component.setState({game_started: true})
+    })
+
+    room.onMessage("whoseTurn", (player) => {
+        console.log('Player turn: ', player)
+    })
 }
 
 // LOBBY LISTENER: Listens for joining and leaving players 

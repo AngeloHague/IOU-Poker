@@ -15,6 +15,7 @@ import PlayerHand from '../../components/PlayerHand'
 import PlayerCards from '../../components/PlayerCards'
 import GameOptions from '../../components/GameOptions'
 import Table from '../../components/Table'
+import Background from '../../assets/background.svg'
 
 export default class GameLobbyScreen extends Component {
     static navigationOptions = {
@@ -24,6 +25,7 @@ export default class GameLobbyScreen extends Component {
     constructor(props) {
         super(props)
         this.ready = false;
+        
 
         this.state = {
             room_id: global.room.id,
@@ -71,8 +73,17 @@ export default class GameLobbyScreen extends Component {
         playerAction(global.room, 'fold', 0)
     }
 
+    setHelpModalVisible = (visible) => {
+        this.setState({helpModalVisible: visible})
+    }
+
+    setRaiseModalVisible = (visible) => {
+        this.setState({raiseModalVisible: visible})
+    }
+
     componentDidMount() {
         global.room.send("message", {contents: "mounted"}) // DEBUG PURPOSES
+        console.log('Lobby mounted')
         //loadLobbyInfo(this, global.room);
         //this.updatePlayers(global.room.state.players) // render players in current state
         if (global.room.state.game_started == true) this.setState({game_started: true})
@@ -83,15 +94,6 @@ export default class GameLobbyScreen extends Component {
         room.onMessage("error", (e) => {
             this.setState({errorMessage: e})
         })
-
-        room.onMessage("startGame", (counter) => {
-            console.log('Starting game')
-            this.setState({game_started: true})
-        })
-
-        room.onMessage("whoseTurn", (player) => {
-            console.log('Player turn: ', player)
-        })
     }
 
     componentWillUnmount() {
@@ -100,7 +102,8 @@ export default class GameLobbyScreen extends Component {
 
     render() {
         return (
-            <View style={[common.container, {backgroundColor: '#c1c9c4'}]}>
+            <View style={[common.container, {backgroundColor: '#c1c9c4'}]}>      
+            <Background position='absolute' preserveAspectRatio="xMinYMin slice"/>
                 <View style={common.navBar}>
                     <TouchableOpacity style={common.navButton} onPress={() => this.props.navigation.goBack()}><Text style={{ color: '#FFF', fontWeight: '500',  textAlign: 'center'}}>Go Back</Text></TouchableOpacity>
                     <Image style={common.navLogo} source={require('../../assets/Logo.png')} />
@@ -113,7 +116,6 @@ export default class GameLobbyScreen extends Component {
                     </View>}
                 </ScrollView>
                 </View>
-
 
                 <View style={styles.gameContainer}>
                     <View style={styles.board}>
