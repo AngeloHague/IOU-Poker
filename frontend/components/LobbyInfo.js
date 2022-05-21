@@ -13,11 +13,11 @@ export function LobbyInfo(component) {
                 <Text style={styles.heading}>Game Rules:</Text>
                 <View style={styles.gameInfoContainer}>
                     <View style={styles.gameInfoLabels}>
-                        <Text style={styles.gameInfo}>Stake:</Text>
-                        <Text style={styles.gameInfo}>Amount:</Text>
-                        <Text style={styles.gameInfo}>Starting Stack:</Text>
-                        <Text style={styles.gameInfo}>Big Blind:</Text>
-                        <Text style={styles.gameInfo}>Small Blind:</Text>
+                        <Text style={styles.gameInfoLabels}>Stake:</Text>
+                        <Text style={styles.gameInfoLabels}>Amount:</Text>
+                        <Text style={styles.gameInfoLabels}>Starting Stack:</Text>
+                        <Text style={styles.gameInfoLabels}>Big Blind:</Text>
+                        <Text style={styles.gameInfoLabels}>Small Blind:</Text>
                     </View>
                     <View style={styles.gameInfo}>
                         <Text style={styles.gameInfo}>{global.room.state.stake}</Text>

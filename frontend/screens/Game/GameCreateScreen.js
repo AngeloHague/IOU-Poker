@@ -5,6 +5,7 @@ import 'firebase/auth'
 import { ScrollView } from 'react-native-gesture-handler'
 import common from '../../styles/common'
 import { auth }  from '../../firebase'
+import Background from '../../assets/background.svg'
 
 export default class GameCreateScreen extends Component {
     static navigationOptions = {
@@ -70,6 +71,7 @@ export default class GameCreateScreen extends Component {
         return (
             <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"} style={common.container}>
+            <Background position='absolute' preserveAspectRatio="xMinYMin slice"/>
                 <View style={common.navBar}>
                     <TouchableOpacity style={common.navButton} onPress={() => this.props.navigation.goBack()}><Text style={{ color: '#FFF', fontWeight: '500',  textAlign: 'center'}}>Go Back</Text></TouchableOpacity>
                     <Image style={common.navLogo} source={require('../../assets/Logo.png')} />

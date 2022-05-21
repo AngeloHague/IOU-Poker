@@ -10,6 +10,10 @@ export default class PlayerHand extends Component {
         super(props)
     }
 
+    componentDidUpdate() {
+        console.log('Player Hand component updated')
+    }
+
     render() {
         if (this.props.cards.length == 2) {
             return (

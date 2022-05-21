@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, StatusBar, KeyboardAvoidingView, ScrollView } from 'react-native'
 import firebase from 'firebase/app'
 import 'firebase/auth'
+import Background from '../../assets/background.svg'
 
 import { auth } from '../../firebase'
 
@@ -31,6 +32,7 @@ export default class LoginScreen extends Component {
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
                 style={styles.container}
             >
+            <Background position='absolute' preserveAspectRatio="xMinYMin slice"/>
                 <ScrollView>
                 <StatusBar barStyle='light-content'></StatusBar>
                 <Text style={styles.greeting}>{'Hey there.\nCome on in.'}</Text>

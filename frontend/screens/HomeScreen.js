@@ -5,8 +5,9 @@ import 'firebase/auth'
 import * as Colyseus from "colyseus.js"
 import { MaterialCommunityIcons } from '@expo/vector-icons'; 
 import { normaliseHeight, normaliseWidth } from '../styles/normalize'
-import styles from '../styles/common'
+import styles, { poker_red } from '../styles/common'
 import Background from '../assets/background.svg'
+// import Background from '../assets/SVGs'
 
 export default class HomeScreen extends Component {
     static navigationOptions = {
@@ -33,23 +34,24 @@ export default class HomeScreen extends Component {
             <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}
             style = {styles.container} >
+                <Background position='absolute' preserveAspectRatio="xMinYMin slice"/>
                 <ScrollView>
                 <View style = {styles.mainMenu} >
                     <Image style={styles.bigLogo} source={require('../assets/Logo.png')} />
-                    <Text style={styles.greeting}>Hi {this.state.displayName}!</Text>
+                    <Text style={styles.greeting}>So, {this.state.displayName}, what shall we do?</Text>
                 </View>
                 <View style={{flex: 1, width: '100%', marginBottom: normaliseHeight(32), flexDirection: 'row', justifyContent: 'space-evenly'}}>
                     <View styles={{width: normaliseWidth(25), height: normaliseHeight(25)}}>
                         <Text><MaterialCommunityIcons name="cards-club" size={24} color="black" /></Text>
                     </View>
                     <View styles={{width: normaliseWidth(25), height: normaliseHeight(25)}}>
-                        <Text><MaterialCommunityIcons name="cards-diamond" size={24} color="#E9446A" /></Text>
+                        <Text><MaterialCommunityIcons name="cards-diamond" size={24} color={poker_red} /></Text>
                     </View>
                     <View styles={{width: normaliseWidth(25), height: normaliseHeight(25)}}>
                         <Text><MaterialCommunityIcons name="cards-spade" size={24} color="black" /></Text>
                     </View>
                     <View styles={{width: normaliseWidth(25), height: normaliseHeight(25)}}>
-                        <Text><MaterialCommunityIcons name="cards-heart" size={24} color="#E9446A" /></Text>
+                        <Text><MaterialCommunityIcons name="cards-heart" size={24} color={poker_red} /></Text>
                     </View>
                 </View>
                 {/*<TouchableOpacity
@@ -62,25 +64,25 @@ export default class HomeScreen extends Component {
                     style={[styles.button, {marginVertical: normaliseHeight(10)}]}
                     onPress={() => this.props.navigation.navigate('GameCreate')}
                 >
-                    <Text style={{ color: '#FFF', fontWeight: '500' }}>Create Game</Text>
+                    <Text style={styles.buttonText}>Create a Game</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={[styles.button, {marginVertical: normaliseHeight(10)}]}
                     onPress={() => this.props.navigation.navigate('GameJoin')}
                 >
-                    <Text style={{ color: '#FFF', fontWeight: '500' }}>Join Game</Text>
+                    <Text style={styles.buttonText}>Join a Game</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={[styles.button, {marginVertical: normaliseHeight(10)}]}
                     onPress={() => this.props.navigation.navigate('Debt')}
                 >
-                    <Text style={{ color: '#FFF', fontWeight: '500' }}>Manage Debts</Text>
+                    <Text style={styles.buttonText}>Manage Debts</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={[styles.button, {marginVertical: normaliseHeight(10)}]}
                     onPress={this.signOutUser}
                 >
-                        <Text style={{ color: '#FFF', fontWeight: '500' }}>Log Out</Text>
+                        <Text style={styles.buttonText}>Log Out</Text>
                 </TouchableOpacity>
                 <View style={{ marginVertical: 10 }} />
                 </ScrollView>

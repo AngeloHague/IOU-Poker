@@ -13,7 +13,16 @@ import GameJoinScreen from './screens/Game/GameJoinScreen'
 import GameLobbyScreen from './screens/Game/GameLobbyScreen'
 import DebtScreen from './screens/DebtScreen'
 // EXPO:
-import { useFonts, Roboto_400Regular } from '@expo-google-fonts/roboto';
+import { useFonts, Roboto_400Regular, Roboto_500Medium } from '@expo-google-fonts/roboto';
+import { 
+  Oswald_200ExtraLight,
+  Oswald_300Light,
+  Oswald_400Regular,
+  Oswald_500Medium,
+  Oswald_600SemiBold,
+  Oswald_700Bold 
+} from '@expo-google-fonts/oswald'
+
 // COLYSEUS:
 import * as Colyseus from "colyseus.js"
 
@@ -50,7 +59,7 @@ const AppContainer = createAppContainer(
 export default function App() {
 //load fonts
 let [fontsLoaded] = useFonts({
-  Roboto_400Regular,
+  Roboto_400Regular,Roboto_500Medium,Oswald_400Regular,Oswald_500Medium,
 });
 
 if (!fontsLoaded) {

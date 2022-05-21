@@ -1,10 +1,15 @@
-import React, { Component } from 'react'
+import React, { PureComponent, Component } from 'react'
 import { View, Text, TouchableOpacity } from 'react-native'
 import { styles } from '../styles/lobby'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { normaliseFont, normaliseWidth } from '../styles/normalize'
+import { poker_red } from '../styles/common'
 
 export default class Card extends Component {
+    componentDidUpdate() {
+        console.log('Card component updated')
+    }
+
     render() {
         if (this.props.card.value == undefined) {
             return(
@@ -16,9 +21,10 @@ export default class Card extends Component {
                 </View>
             )
         } else {
-            let [fontSize, iconSize, suitSize] = (this.props.large) ? [normaliseFont(25), normaliseWidth(17), normaliseWidth(45)] : [normaliseFont(20), normaliseWidth(15), normaliseWidth(35)]
+            let [fontSize, iconSize, suitSize] = (this.props.large) ? [normaliseFont(25), normaliseWidth(17), normaliseWidth(45)] : [normaliseFont(18), normaliseWidth(15), normaliseWidth(35)]
 
             const [value, suit] = this.props.card.value.split('',2)
+            let _value = (value=='T') ? '10' : value
             let _icon, _suit, _color;
             switch(suit) {
                 case 'C':
@@ -27,14 +33,14 @@ export default class Card extends Component {
                     _color = 'black'
                     break;
                 case 'D':
-                    _icon = (<MaterialCommunityIcons name="cards-diamond" size={iconSize} color="red" />)
-                    _suit = (<MaterialCommunityIcons name="cards-diamond" size={suitSize} color="#E9446A" />)
-                    _color = '#E9446A'
+                    _icon = (<MaterialCommunityIcons name="cards-diamond" size={iconSize} color={poker_red} />)
+                    _suit = (<MaterialCommunityIcons name="cards-diamond" size={suitSize} color={poker_red}  />)
+                    _color = poker_red 
                     break;
                 case 'H':
-                    _icon = (<MaterialCommunityIcons name="cards-heart" size={iconSize} color="red" />)
-                    _suit = (<MaterialCommunityIcons name="cards-heart" size={suitSize} color="#E9446A" />)
-                    _color = '#E9446A'
+                    _icon = (<MaterialCommunityIcons name="cards-heart" size={iconSize} color={poker_red}  />)
+                    _suit = (<MaterialCommunityIcons name="cards-heart" size={suitSize} color={poker_red}  />)
+                    _color = poker_red
                     break;
                 case 'S':
                     _icon = (<MaterialCommunityIcons name="cards-spade" size={iconSize} color="black" />)
@@ -49,7 +55,7 @@ export default class Card extends Component {
             if (this.props.small) return (
                 <View style={this.props.style}>
                     <View style={styles.cardHeader}>
-                        <Text style={[styles.cardValue,{color: _color, fontSize: fontSize}]}>{value}</Text>
+                        <Text style={[styles.cardValue,{color: _color, fontSize: fontSize}]}>{_value}</Text>
                     </View>
                     <View style={styles.cardHeader}>
                         <Text style={styles.cardIcon}>{_icon}</Text>
@@ -63,9 +69,9 @@ export default class Card extends Component {
             else return (
                 <View style={this.props.style}>
                     <View style={styles.cardHeader}>
-                        <Text style={[styles.cardValue,{color: _color, fontSize: fontSize}]}>{value}</Text>
+                        <Text style={[styles.cardValue,{color: _color, fontSize: fontSize}]}>{_value}</Text>
                     </View>
-                    <View style={styles.cardHeader}>
+                    <View style={{flex: .5}}>
                         <Text style={styles.cardIcon}>{_icon}</Text>
                     </View>
                     <View style={styles.cardSuit}>
