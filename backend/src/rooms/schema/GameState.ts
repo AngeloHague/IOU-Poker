@@ -58,11 +58,11 @@ export class GameState extends Schema {
   @type([Card]) community_cards = new  ArraySchema<Card>()
   @type('number') largest_bet: number
   @type('number') round_stage: number = 0 // 0 - hidden, 1 - flop, 2 - turn, 3 - river
+  @type('boolean') round_over: boolean = false // 0 - hidden, 1 - flop, 2 - turn, 3 - river
   @type('number') pot: number
   @type('string') winner: string
 
   deck: Card[]
-
   dealer_idx = 0
   big_blind_idx = 0
   small_blind_idx = 0

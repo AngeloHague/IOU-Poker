@@ -3,6 +3,7 @@ import { Schema, MapSchema, ArraySchema, Context, type, filter } from "@colyseus
 import { GameState, Player, Card, newDeck, readCard, shuffle, findBestHand, Hand, determineWinners } from "../schema/GameState";
 import { Game } from "../Game";
 import { HAND_NAME_MAP } from "../schema/constants";
+import { debts } from "../../firebase";
 
 // START GAME:
 export function startGame(room: Room, state: GameState) {
@@ -147,7 +148,7 @@ function payBlind(state: GameState, player_id: string, blind: number) {
 // PLAYER (client) TURN CODE
 export function playerTurn (room: Room, state: GameState, client: Client, turn: any) {
     // ensure its the correct players turn
-  if(client.sessionId === state.current_player) {
+  if(client.sessionId === state.current_player && state.round_over == false) {
       console.log(client.sessionId, ' is trying to ', turn.action, ' on their turn.')
     // player turn
     //console.log(client.sessionId, ' is trying to performing an action...')
@@ -270,32 +271,40 @@ function revealHands(state: GameState) {
   });
 }
 
-function allocateWinnings(room: Room, state: GameState, winners: any[]) {
-  winners.forEach((winning_hands) => {
-    try {
-      if (state.pot > 0) {
-        if (winning_hands.length > 1) {
-          // multiple winners
-          payOutSplitPot(state, winners);
-        } else if (winning_hands.length == 1) {
-          // one winner
-          payOut(state, winning_hands[0], checkMaxPayout(state, state.players.get(winning_hands[0].owner)));
+function allocateWinnings(room: Room, state: GameState, winners: any[], isFold: boolean) {
+  if (isFold) {
+    let winner = state.players.get(winners[0])
+    // Full Payout
+    console.log(winner.sessionId, ' has won ', state.pot,' chips due to others folding')
+    winner.chips += state.pot
+    state.pot = 0
+  } else {
+    winners.forEach((winning_hands) => {
+      try {
+        if (state.pot > 0) {
+          if (winning_hands.length > 1) {
+            // multiple winners
+            payOutSplitPot(state, winners);
+          } else if (winning_hands.length == 1) {
+            // one winner
+            payOut(state, winning_hands[0], checkMaxPayout(state, state.players.get(winning_hands[0].owner)));
+          }
+          
+        } else {
+          throw ('Empty pot')
         }
-        
-      } else {
-        throw ('Empty pot')
       }
+      catch (e) {
+        //console.log(e)
+      }
+      
+    });
+    // In the event of a split pot leaving chips, give to first winner:
+    // e.g. 2 players bet 300, while the 3rd (small blind) entered only bet 25:
+    // 625 / 2 = 312.5. As operations are integer-based, 1 chips will be left in the pot.
+    if (state.pot > 0) {
+      payOut(state, winners[0][0], checkMaxPayout(state, state.players.get(winners[0][0].owner)));
     }
-    catch (e) {
-      //console.log(e)
-    }
-    
-  });
-  // In the event of a split pot leaving chips, give to first winner:
-  // e.g. 2 players bet 300, while the 3rd (small blind) entered only bet 25:
-  // 625 / 2 = 312.5. As operations are integer-based, 1 chips will be left in the pot.
-  if (state.pot > 0) {
-    payOut(state, winners[0][0], checkMaxPayout(state, state.players.get(winners[0][0].owner)));
   }
 }
 
@@ -369,16 +378,16 @@ function payOut(state: GameState, winning_hand: Hand, max_payout: number) {
 
 export function foldWin(room: Room, state: GameState) {
   console.log('Checking for fold victory')
-  let winners: string[]
+  let winners: string[] = []
   let folded = 0
-  let players = state.active_players
-  players.forEach((key) => {
-    console.log('Checking if ', key, ' has folded')
-    if (state.players.get(key).isFolded == true) {
-      console.log(key, ' has folded.')
+  //let players = state.active_players
+  state.players.forEach((player) => {
+    console.log('Checking if ', player.sessionId, ' has folded')
+    if (player.isFolded == true) {
+      console.log(player.sessionId, ' has folded.')
       folded+=1
     } else {
-      winners.push(key)
+      winners.push(player.sessionId)
     }
   });
   return winners
@@ -409,11 +418,22 @@ function revealCommunityCards(amount: string, state: GameState) {
 
 export function checkIfStageOver(room: Room, state: GameState) {
   // if everyone else has folded, last player remaining wins:
-  if (state.active_players.length == state.folded_players-1) {
+  if (state.active_players.length-1 == state.folded_players) {
     // all other players folded
+    state.round_over = true
     let winners = foldWin(room, state)
-    allocateWinnings(room, state, winners)
+    allocateWinnings(room, state, winners, true)
     console.log('All other players have folded. Winner is: ', winners[0])
+    let timeout = 5
+    var timer = setInterval(function () {
+      if (timeout <= 0) {
+        clearInterval(timer)
+        roundReset(room, state) // reset after 5s
+      }
+      console.log('Resetting round in: ', timeout)
+      timeout--
+    }, 1000);
+    if (timeout <= 0) roundReset(room, state) // reset after 5s
   } else if (state.all_in_players == state.active_players.length) {
     // all players are all in
     // reveal remaining cards
@@ -436,9 +456,10 @@ export function checkIfStageOver(room: Room, state: GameState) {
       state.community_cards[4].revealed = true
     }
     // determine winner
+    state.round_over = true
     let winners = determineWinners(state)
     revealHands(state)
-    allocateWinnings(room, state, winners)
+    allocateWinnings(room, state, winners, false)
     // Reset after 5s
     let timeout = 5
     var timer = setInterval(function () {
@@ -475,10 +496,11 @@ export function checkIfStageOver(room: Room, state: GameState) {
     else if (state.round_stage == 3) {
       // determine winner
       //determineWinner(room, state)
+      state.round_over = true
       let winners = determineWinners(state)
       //console.log(winners)
       revealHands(state)
-      allocateWinnings(room, state, winners)
+      allocateWinnings(room, state, winners, false)
       // Reset after 5s
       let timeout = 5
       var timer = setInterval(function () {
@@ -527,14 +549,46 @@ export function roundReset(room: Room, state: GameState) {
     state.matched_players = 0
     state.all_in_players = 0
     state.round_stage = 0
+    state.round_over = false
     //state.dealer_idx+=1
     state.community_cards = new ArraySchema<Card>()
     nextRound(room, state)
   }
 }
 
-function concludeGame(room: Room, state: GameState) {
+async function concludeGame(room: Room, state: GameState) {
   // connect to firebase and add debt
+  if (state.stake != null && state.stake != 'null' && state.stake != '' && state.stake != ' ' && state.amount != 0) {
+    console.log('Adding debt to firestore...') // debug purposes
+    console.log('Stake: %s, Amount: %s', state.stake, state.amount) // debug purposes
+    let [winners, losers]: any = [[],[]]
+    state.players.forEach((player) => {
+      if (player.chips === 0 || player.isOut) {
+        losers.push(player.uid)
+      } else {
+        winners.push(player.uid)
+      }
+    })
+    if (winners.length == 1) {
+      let winner = winners[0]
+      losers.forEach((loser: string) => {
+        let debt = {
+          amount: state.amount,
+          stake: state.stake,
+          sender: loser,
+          recipient: winner,
+          approved_by_loser: false,
+          approved_by_winner: false,
+          completed: false,
+        }
+        debts.add(debt).then((res: any) => {
+          console.log('Added debt: ', res.id)
+      })
+      });
+    }
+  } else {
+    console.log('4fun game finished') // debug purposes
+  }
 }
 
 export function getPlayerUID(state: GameState, clientID: string) {

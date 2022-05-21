@@ -3,6 +3,11 @@ import { Text, TextInput, TouchableOpacity, StyleSheet, View, KeyboardAvoidingVi
 import { styles } from '../styles/lobby'
 
 export function LobbyInfo(component) {
+    const stake = (global.room.state.stake == null || global.room.state.stake == 'null' || global.room.state.stake == '' || global.room.state.stake == ' ') ? 'Nothing' : (global.room.state.stake)
+    const amount = global.room.state.amount
+    const chips = global.room.state.chips
+    const b_blind = global.room.state.b_blind
+    const s_blind = global.room.state.s_blind
     return (
         <View>
             <View style={styles.roomCodeContainer}>
@@ -20,11 +25,11 @@ export function LobbyInfo(component) {
                         <Text style={styles.gameInfoLabels}>Small Blind:</Text>
                     </View>
                     <View style={styles.gameInfo}>
-                        <Text style={styles.gameInfo}>{global.room.state.stake}</Text>
-                        <Text style={styles.gameInfo}>{global.room.state.amount}</Text>
-                        <Text style={styles.gameInfo}>{global.room.state.chips}</Text>
-                        <Text style={styles.gameInfo}>{global.room.state.b_blind}</Text>
-                        <Text style={styles.gameInfo}>{global.room.state.s_blind}</Text>
+                        <Text style={styles.gameInfo}>{stake}</Text>
+                        <Text style={styles.gameInfo}>{amount}</Text>
+                        <Text style={styles.gameInfo}>{chips}</Text>
+                        <Text style={styles.gameInfo}>{b_blind}</Text>
+                        <Text style={styles.gameInfo}>{s_blind}</Text>
                     </View>
                 </View>
             </View>
