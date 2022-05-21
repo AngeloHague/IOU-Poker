@@ -69,7 +69,7 @@ export class Game extends Room<GameState> {
         player.ready = message.isReady
         this.state.players.set(client.sessionId, player)
         if (this.readyToStart()) {
-          let timeout = 5
+          let timeout = 1 // debug purposes
           var timer = setInterval(() => {
             if (timeout <= 0) {
               clearInterval(timer)

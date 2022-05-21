@@ -42,8 +42,8 @@ export default class GameCreateScreen extends Component {
             } else {
                 let { uid, displayName } = auth.currentUser
                 try {
-                    if (!stake || stake == ' ') stake = null
-                    if (!amount || amount == ' ') amount = null
+                    if (!stake || stake == ' ') stake = ''
+                    if (!amount || amount == ' ') amount = 0
                     let settings = {
                         uid: uid,
                         name: displayName,
