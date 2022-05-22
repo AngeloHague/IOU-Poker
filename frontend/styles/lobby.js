@@ -223,10 +223,10 @@ export const styles = StyleSheet.create({
         textAlign: 'center',
     },
     commCardContainer: {
-        //backgroundColor: 'green', // debug purposes
+        //backgroundColor: 'red', // debug purposes
         //flexGrow: 1,
         //flex: 1,
-        marginVertical: normaliseHeight(20),
+        marginVertical: normaliseHeight(10),
         flexDirection: 'column',
         //justifyContent: 'space-evenly'
     },
@@ -251,13 +251,14 @@ export const styles = StyleSheet.create({
         fontSize: normaliseFont(16),
         color: '#fff',
         fontFamily: 'Roboto_400Regular',
-        marginHorizontal: 30
+        marginLeft: normaliseWidth(5),
+        marginRight: normaliseWidth(30),
     },
     centeredView: {
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
-        marginTop: 22
+        marginTop: 22,
     },
     modalView: {
         margin: 20,

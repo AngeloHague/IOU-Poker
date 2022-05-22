@@ -1,21 +1,18 @@
 import React, { Component } from 'react'
-import { Text, TextInput, TouchableOpacity, View, KeyboardAvoidingView, Image } from 'react-native'
-//import firebase from 'firebase/app'
-//import 'firebase/auth'
-import { auth } from '../../firebase'
+import { Text, TouchableOpacity, View, Image } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
-import Carousel, { Pagination } from 'react-native-snap-carousel'
 import common from '../../styles/common'
-import { renderPlayers, playerAction, renderPlayerHand } from '../../components/GameHelper'
 import { initListeners } from '../../components/Listeners'
 import { styles } from '../../styles/lobby'
 import { LobbyInfo } from '../../components/LobbyInfo'
-import { normaliseHeight } from '../../styles/normalize'
 import PlayerHand from '../../components/PlayerHand'
 import PlayerCards from '../../components/PlayerCards'
 import GameOptions from '../../components/GameOptions'
 import Table from '../../components/Table'
 import Background from '../../assets/background.svg'
+import FlashDisplayer from '../../components/FlashDisplayer'
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { normaliseFont } from '../../styles/normalize'
 
 export default class GameLobbyScreen extends Component {
     static navigationOptions = {
@@ -45,35 +42,21 @@ export default class GameLobbyScreen extends Component {
             small_blind: null,
             current_player: null,
             current_bet: 0,
+            largest_bet: 0,
+            chat_messages: [],
+            notifications: [],
         }
     }
 
     changeReadyState = () => {
         this.ready = !this.ready
         global.room.send("changeReadyState", {isReady: this.ready})
+        this.setState({ notifications: [...this.state.notifications, ('Player is now: ' + this.ready)] })
     }
 
     showOptions = () => {
         let options = this.state.show_options
         this.setState({show_options: !options})
-    }
-
-    playerCheck = () => {
-        console.log(auth.currentUser.uid, ' is checking ')
-        //global.room.send("playerTurn", {action: 'check'})
-        playerAction(global.room, 'check', 0)
-    }
-
-    playerBet = (amount) => {
-        console.log(auth.currentUser.uid, ' is raising ', amount)
-        //global.room.send("playerTurn", {action: 'bet', amount: amount})
-        playerAction(global.room, 'raise', amount)
-    }
-
-    playerFold = () => {
-        console.log(auth.currentUser.uid, ' is folding ')
-        //global.room.send("playerTurn", {action: 'fold'})
-        playerAction(global.room, 'fold', 0)
     }
 
     setHelpModalVisible = (visible) => {
@@ -108,9 +91,9 @@ export default class GameLobbyScreen extends Component {
             <View style={[common.container, {backgroundColor: '#c1c9c4'}]}>      
             <Background position='absolute' preserveAspectRatio="xMinYMin slice"/>
                 <View style={common.navBar}>
-                    <TouchableOpacity style={common.navButton} onPress={() => this.props.navigation.goBack()}><Text style={{ color: '#FFF', fontWeight: '500',  textAlign: 'center'}}>Go Back</Text></TouchableOpacity>
+                    <TouchableOpacity style={common.navButton} onPress={() => this.props.navigation.goBack()}><Text style={{ color: '#FFF', fontWeight: '500',  textAlign: 'center'}}><MaterialCommunityIcons name="keyboard-backspace" size={normaliseFont(40)} color="white" /></Text></TouchableOpacity>
                     <Image style={common.navLogo} source={require('../../assets/Logo.png')} />
-                    <TouchableOpacity style={common.navButton}><Text style={{ color: '#FFF', fontWeight: '500',  textAlign: 'center'}}>Chat</Text></TouchableOpacity>
+                    <TouchableOpacity style={common.navButton}><Text style={{ color: '#FFF', fontWeight: '500',  textAlign: 'center'}}><MaterialCommunityIcons name="chat-processing" size={normaliseFont(40)} color="white" /></Text></TouchableOpacity>
                 </View>
                 <View>
                 <ScrollView horizontal={true} style={styles.playerScroller}>
@@ -126,6 +109,7 @@ export default class GameLobbyScreen extends Component {
                         <View style={common.errorMessage}>
                             {this.state.errorMessage && <Text style={common.error}>{this.state.errorMessage}</Text>}
                         </View>}
+                        <FlashDisplayer notifications={this.state.notifications} />
                         {!this.state.game_started && LobbyInfo(this)}
                         {this.state.game_started &&
                         <View style={{ flex: 1, flexDirection: 'column'}}>
@@ -134,7 +118,7 @@ export default class GameLobbyScreen extends Component {
                         </View>}
                     </View>
                 </View>
-                <GameOptions current_bet={this.state.current_bet} chips={this.state.chips} game_started={this.state.game_started} show_options={this.state.show_options} showOptions={this.showOptions} changeReadyState={this.changeReadyState} />
+                <GameOptions current_bet={this.state.current_bet} largest_bet={this.state.largest_bet} chips={this.state.chips} game_started={this.state.game_started} show_options={this.state.show_options} showOptions={this.showOptions} changeReadyState={this.changeReadyState} />
             </View>
         )
     }

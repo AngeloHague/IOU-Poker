@@ -1,6 +1,5 @@
 import React, { PureComponent, Component } from 'react'
 import { View, Text, Image } from 'react-native'
-import { renderCard } from './GameHelper'
 import { styles } from '../styles/lobby'
 import { normaliseFont, normaliseWidth } from '../styles/normalize';
 import Card from './Card';

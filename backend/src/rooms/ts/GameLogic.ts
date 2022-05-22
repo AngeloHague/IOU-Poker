@@ -46,6 +46,7 @@ export function startGame(room: Room, state: GameState) {
   state.current_player = state.active_players[state.player_idx]
   //startRound(room, state)
   room.broadcast("startGame")
+  sendMessage(room, state, 'Game Started', 'server', true)
   announceWhoseTurn(room, state)
   //room.broadcast("start_round")
 }
@@ -178,6 +179,7 @@ export function playerTurn (room: Room, state: GameState, client: Client, turn: 
 function playerFold(room: Room, state: GameState, player: Player) {
   player.isFolded = true
   state.folded_players+=1
+  let message = getPlayerName(state, player.sessionId) + ' has folded.'
   checkIfStageOver(room, state)
 }
 
@@ -189,6 +191,8 @@ function playerFold(room: Room, state: GameState, player: Player) {
 
 function playerCheck(room: Room, state: GameState, player: Player) {
   if (player.current_bet == state.largest_bet || player.chips == 0) {
+      let message = getPlayerName(state, player.sessionId) + " chose to check."
+      sendMessage(room, state, message, 'server', true)
       console.log(player.sessionId, " checked successfully", '. Total Pot: ', state.pot)
       state.matched_players += 1
       checkIfStageOver(room, state)
@@ -209,7 +213,9 @@ function playerCall(room: Room, state: GameState, player: Player) {
   player.chips -= increase
   state.matched_players+=1
   state.pot += increase
-  console.log(player.sessionId, ' called, adding ', increase, '. Total Pot: ', state.pot)
+  let message = getPlayerName(state, player.sessionId) + ' called, adding ' + increase + '.'
+  sendMessage(room, state, message, 'server', true)
+  console.log(player.sessionId + ' called, adding ' + increase + '. Total Pot: ' + state.pot)
   checkIfStageOver(room, state)
 }
 
@@ -224,7 +230,9 @@ function playerAllIn(room: Room, state: GameState, player: Player) {
   } else state.matched_players+=1
   state.all_in_players += 1
   state.pot += amount
-  console.log(player.sessionId, ' went all-in with: ', amount, '. Total Pot: ', state.pot)
+  let message = getPlayerName(state, player.sessionId) + ' went all-in with: ' + amount
+  sendMessage(room, state, message, 'server', true)
+  console.log(player.sessionId + ' went all-in with: ' + amount + '. Total Pot: ' + state.pot)
   checkIfStageOver(room, state)
 }
 
@@ -234,10 +242,12 @@ function playerRaise(room: Room, state: GameState, player: Player, amount: numbe
   } else if (player.current_bet + amount > state.largest_bet) {
     if (amount <= player.chips) {
       player.current_bet += amount
-      state.largest_bet = amount
+      state.largest_bet = player.current_bet
       state.pot += amount
       state.matched_players = 1
-      console.log(player.sessionId, ' raised by: ', amount, '. Total Pot: ', state.pot)
+      let message = getPlayerName(state, player.sessionId) + ' raised by ' + amount
+      sendMessage(room, state, message, 'server', true)
+      console.log(player.sessionId + ' raised by: ' + amount + '. Total Pot: ' + state.pot)
       checkIfStageOver(room, state)
     } else {
       // player cannot afford
@@ -276,6 +286,8 @@ function allocateWinnings(room: Room, state: GameState, winners: any[], isFold: 
     let winner = state.players.get(winners[0])
     // Full Payout
     console.log(winner.sessionId, ' has won ', state.pot,' chips due to others folding')
+    let message = winner.sessionId + ' has won ' + state.pot + ' chips.'
+    sendMessage(room, state, message, 'server', true)
     winner.chips += state.pot
     state.pot = 0
   } else {
@@ -284,10 +296,10 @@ function allocateWinnings(room: Room, state: GameState, winners: any[], isFold: 
         if (state.pot > 0) {
           if (winning_hands.length > 1) {
             // multiple winners
-            payOutSplitPot(state, winners);
+            payOutSplitPot(room, state, winners);
           } else if (winning_hands.length == 1) {
             // one winner
-            payOut(state, winning_hands[0], checkMaxPayout(state, state.players.get(winning_hands[0].owner)));
+            payOut(room, state, winning_hands[0], checkMaxPayout(state, state.players.get(winning_hands[0].owner)));
           }
           
         } else {
@@ -303,7 +315,7 @@ function allocateWinnings(room: Room, state: GameState, winners: any[], isFold: 
     // e.g. 2 players bet 300, while the 3rd (small blind) entered only bet 25:
     // 625 / 2 = 312.5. As operations are integer-based, 1 chips will be left in the pot.
     if (state.pot > 0) {
-      payOut(state, winners[0][0], checkMaxPayout(state, state.players.get(winners[0][0].owner)));
+      payOut(room, state, winners[0][0], checkMaxPayout(state, state.players.get(winners[0][0].owner)));
     }
   }
 }
@@ -323,7 +335,7 @@ function checkMaxPayout(state: GameState, winner: Player) {
 }
 
 // Checks for side pots and splits according to their possible earnings
-function splitSidePots(state: GameState, pots: any[]) {
+function splitSidePots(room: Room, state: GameState, pots: any[]) {
   let split_pot = Math.floor(state.pot / pots.length)
   let remaining_pots: any = []
 
@@ -331,15 +343,15 @@ function splitSidePots(state: GameState, pots: any[]) {
     let max_split = Math.floor(pot.pot / pots.length)
     if (max_split <= split_pot) {
       // payout
-      payOut(state, pot.winner, max_split)
+      payOut(room, state, pot.winner, max_split)
     } else remaining_pots.push(pot)
   });
   if (remaining_pots == pots.length) {
     return remaining_pots
-  } else splitSidePots(state, remaining_pots)
+  } else splitSidePots(room, state, remaining_pots)
 };
 
-function payOutSplitPot(state: GameState, winners: Hand[]) {
+function payOutSplitPot(room: Room, state: GameState, winners: Hand[]) {
   let pots: any = []
   winners.forEach(winner => {
     let max_payout = checkMaxPayout(state, state.players.get(winner.owner))
@@ -349,26 +361,30 @@ function payOutSplitPot(state: GameState, winners: Hand[]) {
   pots.sort((a: any, b:any) => {
     return a.pot - b.pot
   });
-  let remaining_pots = splitSidePots(state, pots)
+  let remaining_pots = splitSidePots(room, state, pots)
   if (remaining_pots.length > 0) {
     let split_pot = Math.floor(state.pot / remaining_pots.length)
     remaining_pots.forEach((pot: any) => {
-      payOut(state, pot.winner, split_pot)
+      payOut(room, state, pot.winner, split_pot)
     });
   }
 }
 
-function payOut(state: GameState, winning_hand: Hand, max_payout: number) {
+function payOut(room: Room, state: GameState, winning_hand: Hand, max_payout: number) {
   let winner = state.players.get(winning_hand.owner)
   if (max_payout >= state.pot) {
     // Full Payout
     console.log(winner.sessionId, ' has won ', state.pot,' chips with a ', HAND_NAME_MAP.get(winning_hand.rank))
+    let message = getPlayerName(state, winner.sessionId) + ' has won ' + state.pot + ' chips with a '+ HAND_NAME_MAP.get(winning_hand.rank)
+    sendMessage(room, state, message, 'server', true)
     winner.chips += state.pot
     state.pot = 0
   } else {
     // Partial Payout (Side Pots)
     if (max_payout < state.pot) {
-      console.log(winner.sessionId, ' has won ', max_payout,' chips with a ', HAND_NAME_MAP.get(winning_hand.rank))
+      console.log(winner.sessionId, ' has won a side-pot of ', max_payout,' chips with a ', HAND_NAME_MAP.get(winning_hand.rank))
+      let message = getPlayerName(state, winner.sessionId) + ' has won a side-pot of ' + state.pot + ' chips with a '+ HAND_NAME_MAP.get(winning_hand.rank)
+      sendMessage(room, state, message, 'server', true)
       winner.chips += max_payout
       state.pot -= max_payout
     }
@@ -424,6 +440,8 @@ export function checkIfStageOver(room: Room, state: GameState) {
     let winners = foldWin(room, state)
     allocateWinnings(room, state, winners, true)
     console.log('All other players have folded. Winner is: ', winners[0])
+    let message = getPlayerName(state, winners[0]) + ' wins.'
+    sendMessage(room, state, message, 'server', true)
     let timeout = 5
     var timer = setInterval(function () {
       if (timeout <= 0) {
@@ -443,17 +461,23 @@ export function checkIfStageOver(room: Room, state: GameState) {
       state.community_cards[2].revealed = true
       state.community_cards[3].revealed = true
       state.community_cards[4].revealed = true
+      let message ='Revealing community cards.'
+      sendMessage(room, state, message, 'server', true)
     }
     else if (state.round_stage == 1) {
       // reveal turn
       console.log('Revealing turn...')
       state.community_cards[3].revealed = true
       state.community_cards[4].revealed = true
+      let message = 'Revealing turn & river.'
+      sendMessage(room, state, message, 'server', true)
     }
     else if (state.round_stage == 2) {
       // reveal river
       console.log('Revealing river...')
       state.community_cards[4].revealed = true
+      let message = 'Revealing river.'
+      sendMessage(room, state, message, 'server', true)
     }
     // determine winner
     state.round_over = true
@@ -482,18 +506,26 @@ export function checkIfStageOver(room: Room, state: GameState) {
       state.community_cards[0].revealed = true
       state.community_cards[1].revealed = true
       state.community_cards[2].revealed = true
+      let message = 'Revealing flop.'
+      sendMessage(room, state, message, 'server', true)
     }
     else if (state.round_stage == 1) {
       // reveal turn
       console.log('Revealing turn...')
       state.community_cards[3].revealed = true
+      let message = 'Revealing turn.'
+      sendMessage(room, state, message, 'server', true)
     }
     else if (state.round_stage == 2) {
       // reveal river
       console.log('Revealing river...')
       state.community_cards[4].revealed = true
+      let message = 'Revealing river.'
+      sendMessage(room, state, message, 'server', true)
     }
     else if (state.round_stage == 3) {
+      let message = 'Determining winner...'
+      sendMessage(room, state, message, 'server', true)
       // determine winner
       //determineWinner(room, state)
       state.round_over = true
@@ -552,6 +584,8 @@ export function roundReset(room: Room, state: GameState) {
     state.round_over = false
     //state.dealer_idx+=1
     state.community_cards = new ArraySchema<Card>()
+    
+    sendMessage(room, state, 'Next Round Started', 'server', true)
     nextRound(room, state)
   }
 }
@@ -591,14 +625,27 @@ async function concludeGame(room: Room, state: GameState) {
   }
 }
 
+export function getPlayerName(state: GameState, clientID: string) {
+  let item = state.players.get(clientID)
+  return item.name
+}
+
 export function getPlayerUID(state: GameState, clientID: string) {
   let item = state.players.get(clientID)
   return item.uid
 }
 
 export function announceWhoseTurn(room: Room, state: GameState) {
-  console.log("Round Started - Current player: ", state.current_player)
-  room.broadcast('whoseTurn', getPlayerUID(state, state.current_player))
+  console.log("Player Turn: ", state.current_player)
+  let message = 'It is now ' + getPlayerName(state, state.current_player) + '\'s turn.'
+  sendMessage(room, state, (message), 'server', true)
+}
+
+export function sendMessage(room: Room, state: GameState, contents: string, sender: string, is_notif: boolean) {
+  room.broadcast('message', {index: state.chat_idx, message: contents, sender: sender, isNotification: is_notif})
+  state.chat_idx+=1
+  // sendMessage(room, state, 'Chat', client.sessionId, false)
+  // sendMessage(room, state, 'Notification', 'server', true)
 }
 
 export function dealCards(state: GameState) {

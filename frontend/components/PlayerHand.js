@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import { View, Text } from 'react-native'
-import { renderCard } from './GameHelper'
 import { styles } from '../styles/lobby'
 import Card from './Card'
 import { normaliseWidth } from '../styles/normalize'
@@ -10,9 +9,9 @@ export default class PlayerHand extends Component {
         super(props)
     }
 
-    componentDidUpdate() {
-        console.log('Player Hand component updated')
-    }
+    // componentDidUpdate() {
+    //     console.log('Player Hand component updated')
+    // }
 
     render() {
         if (this.props.cards.length == 2) {
@@ -27,12 +26,6 @@ export default class PlayerHand extends Component {
                             <Card card={this.props.cards[1]} style={styles.card} />
                         </View>
                     </View>
-                </View>
-            )
-            return (
-                <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
-                    {renderCard(this.props.cards[0])}
-                    {renderCard(this.props.cards[1])}
                 </View>
             )
         } else return (<></>)

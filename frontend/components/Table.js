@@ -8,13 +8,13 @@ export default class Table extends Component {
         super(props)
     }
 
-    componentDidMount() {
-        console.log('Table Mounted:',this.props.cards.length)
-    }
+    // componentDidMount() {
+    //     console.log('Table Mounted:',this.props.cards.length)
+    // }
 
-    componentDidUpdate() {
-        console.log('Table component updated')
-    }
+    // componentDidUpdate() {
+    //     console.log('Table component updated')
+    // }
 
     render() {
         if (this.props.cards.length == 5) {

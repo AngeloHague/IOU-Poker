@@ -1,7 +1,7 @@
 import React, { PureComponent, Component } from 'react'
 import { View, Text, TouchableOpacity, Modal, Pressable } from 'react-native'
 import { styles } from '../styles/lobby'
-import { playerAction } from '../components/GameHelper'
+import { playerAction } from '../components/Listeners'
 import { normaliseHeight, normaliseWidth } from '../styles/normalize'
 import { Entypo } from '@expo/vector-icons'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
@@ -108,9 +108,9 @@ export default class GameOptions extends PureComponent {
         this.setState({ show_raise: !raise });
     }
 
-    componentDidUpdate() {
-        console.log('Options component updated')
-    }
+    // componentDidUpdate() {
+    //     console.log('Options component updated')
+    // }
 
     render() {
         return (
@@ -139,7 +139,7 @@ export default class GameOptions extends PureComponent {
                     
                     {this.props.game_started &&
                     <TouchableOpacity style={styles.optionsButton} onPress={() =>{this.playerCheck()}}>
-                        <Text style={{ color: '#FFF', fontWeight: '500' }}>Check</Text>
+                        <Text style={{ color: '#FFF', fontWeight: '500' }}>{this.props.largest_bet > this.props.chips ? 'All in' : (this.props.largest_bet > this.props.current_bet ? 'Call' : 'Check')}</Text>
                     </TouchableOpacity>}
                     {this.props.game_started && <View>
                     <TouchableOpacity style={styles.optionsButton} onPress={this.showRaise}>

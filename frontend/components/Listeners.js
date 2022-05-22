@@ -1,5 +1,3 @@
-import {updatePlayers, renderPlayerHand, renderCommunityCards, renderPlayers} from '../components/GameHelper'
-
 // INITIATE ALL LISTENERS USING SINGLE FUNCTION:
 export function initListeners(component) {
     playerListener(component)
@@ -11,8 +9,12 @@ export function initListeners(component) {
         component.setState({game_started: true})
     })
 
-    room.onMessage("whoseTurn", (player) => {
-        console.log('Player turn: ', player)
+    // CHAT & NOTIFICATION LISTENER:
+    room.onMessage("message", (message) => {
+        console.log('message received')
+        console.log(message)
+        component.setState({ chat_messages: [...component.state.chat_messages, message] })
+        if (message.isNotification == true) component.setState({ notifications: [...component.state.notifications, message.message] })
     })
 }
 
@@ -37,13 +39,13 @@ export function playerListener(component){
                     //this.updatePlayers(global.room.state.players) // render players in current state
                     updatePlayers(component, global.room.state.players) // render players in current state
                 } else if (change.field == 'chips') {
-                    console.log(key, '\'s chips have changed from: ', change.previousValue, ' to ', change.value)
+                    // console.log(key, '\'s chips have changed from: ', change.previousValue, ' to ', change.value)
                     if (key === global.room.sessionId) {component.setState({chips: change.value})}
                     //player.chips = change.value
                     updatePlayers(component, global.room.state.players) // render players in current state
                     //renderPlayers(component.state, compon)
                 } else if (change.field == 'current_bet') {
-                    console.log(key, '\'s chips have changed from: ', change.previousValue, ' to ', change.value)
+                    // console.log(key, '\'s current bet has changed from: ', change.previousValue, ' to ', change.value)
                     if (key === global.room.sessionId) component.setState({current_bet: player['current_bet']})
                     //player.chips = change.value
                     updatePlayers(component, global.room.state.players) // render players in current state
@@ -97,9 +99,9 @@ export function playerListener(component){
 }
 
 // COMMUNITY CARD LISTENERS
-export function tableListener(component){
+export function tableListener(component) {
     global.room.state.community_cards.onAdd = (card, key) => {
-        console.log('New community card dealt: ', card.value, ' at ', key)
+        //console.log('New community card dealt: ', card.value, ' at ', key)
         component.setState({ community_cards: [...component.state.community_cards, card] })
 
         card.onChange = (change, idx) => {
@@ -109,7 +111,7 @@ export function tableListener(component){
         }
     }
     global.room.state.community_cards.onRemove = (card) => {
-        console.log('Community card removed: ', card)
+        //console.log('Community card removed: ', card)
         component.setState(() => { 
             let empty = []
             return {community_cards: empty}
@@ -119,59 +121,38 @@ export function tableListener(component){
         component.setState({pot: value})
     })
     global.room.state.listen('current_player', (value, previous) => {
-        console.log('Current player is now: ', value)
+        //console.log('Current player is now: ', value)
         component.setState({current_player: value})
+    })
+    global.room.state.listen('largest_bet', (value, previous) => {
+        //console.log('Current player is now: ', value)
+        component.setState({largest_bet: value})
     })
 }
 
-// // LISTENS FOR STATE CHANGES
-// export function changeListener() {
-//     let chng_set = 0; // DEBUG PURPOSES
-//     let chng_idx = 0; // DEBUG PURPOSES
-//     room.state.onChange = (changes) => {
-//         console.log('Room State Changes #', chng_set)
-//         changes.forEach(change => {
-//             // console.log('Change #', chng_idx);
-//             // console.log(change.field);
-//             // console.log(change.value);
-//             // console.log(change.previousValue);
-//             changeRouter(change)
-//             chng_idx+=1 // DEBUG PURPOSES
-//         });
-//         //console.log('Room State Updated')
-//         //console.log(room.state)
-//         chng_set+=1 // DEBUG PURPOSES
-//     }
-// }
+// UPDATE THE LIST OF PLAYERS
+export function updatePlayers(component, players) {
+    //const _players = []
+    const _players = component.state.players
+    players.forEach((player) => {
+        const _player = {
+            name: player['name'],
+            uid: player['uid'],
+            sid: player['sessionId'],
+            ready: player['ready'],
+            chips: player['chips'],
+            current_bet: player['current_bet'],
+            folded: player['folded'],
+            cards: player['cards'],
+        }
+        _players.set(_player.sid, _player)
+    })
+    component.setState({players: _players})
+}
 
+// COMMUNICATE PLAYER ACTION WITH SERVER
+export function playerAction(room, action, amount) {
+    room.send("playerTurn", {action: action, amount: amount})
+}
 
-
-// // ROUTES CHANGES TO RELEVANT FUNCTIONS
-// export function changeRouter(change) {
-//     switch(change.field) {
-//         case 'current_player':
-//             console.log('Current player changed from ', change.previousValue, ' to ', change.value)
-//             break;
-//         case 'community_cards':
-//             console.log('Community Cards changed from ', change.previousValue, ' to ', change.value)
-//             console.log(change)
-//             handleCommuninityCards(change)
-//             break;
-//         default:
-//             console.log('Other change occured')
-//             break;
-//     }
-// }
-
-// export function handleCommuninityCards(change) {
-//     console.log(change.previousValue.length)
-//     console.log(change.value.length)
-//     if (change.previousValue.length < change.value.length) {
-//         // cards have been dealt
-//         global.room.state.community_cards = change.value
-//         console.log('Cards have been dealt')
-//     } else {
-//         // 
-//     }
-// }
-
+// NOTIFICATION HELPER FUNCTIONS:
