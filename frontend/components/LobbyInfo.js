@@ -18,11 +18,11 @@ export function LobbyInfo(component) {
                 <Text style={styles.heading}>Game Rules:</Text>
                 <View style={styles.gameInfoContainer}>
                     <View style={styles.gameInfoLabels}>
-                        <Text style={styles.gameInfoLabels}>Stake:</Text>
-                        <Text style={styles.gameInfoLabels}>Amount:</Text>
-                        <Text style={styles.gameInfoLabels}>Starting Stack:</Text>
-                        <Text style={styles.gameInfoLabels}>Big Blind:</Text>
-                        <Text style={styles.gameInfoLabels}>Small Blind:</Text>
+                        <Text style={styles.gameInfoLabels}>Stake </Text>
+                        <Text style={styles.gameInfoLabels}>Amount </Text>
+                        <Text style={styles.gameInfoLabels}>Chips </Text>
+                        <Text style={styles.gameInfoLabels}>Big Blind </Text>
+                        <Text style={styles.gameInfoLabels}>Small Blind </Text>
                     </View>
                     <View style={styles.gameInfo}>
                         <Text style={styles.gameInfo}>{stake}</Text>

@@ -5,6 +5,8 @@ import 'firebase/auth'
 import { ScrollView } from 'react-native-gesture-handler'
 import common from '../../styles/common'
 import Background from '../../assets/background.svg'
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { normaliseFont } from '../../styles/normalize'
 
 export default class GameJoinScreen extends Component {
     static navigationOptions = {
@@ -57,7 +59,7 @@ export default class GameJoinScreen extends Component {
                 behavior={Platform.OS === "ios" ? "padding" : "height"} style={common.container}>
                 <Background position='absolute' preserveAspectRatio="xMinYMin slice"/>
                 <View style={common.navBar}>
-                    <TouchableOpacity style={common.navButton} onPress={() => this.props.navigation.goBack()}><Text style={{ color: '#FFF', fontWeight: '500',  textAlign: 'center'}}>Go Back</Text></TouchableOpacity>
+                    <TouchableOpacity style={common.navButton} onPress={() => this.props.navigation.goBack()}><Text style={{ color: '#FFF', fontWeight: '500',  textAlign: 'center'}}><MaterialCommunityIcons name="keyboard-backspace" size={normaliseFont(40)} color="white" /></Text></TouchableOpacity>
                     <Image style={common.navLogo} source={require('../../assets/Logo.png')} />
                     <TouchableOpacity style={common.navButton} disabled={true}><Text style={{ color: '#FFF', fontWeight: '500',  textAlign: 'center'}}></Text></TouchableOpacity>
                 </View>

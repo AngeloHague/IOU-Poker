@@ -72,6 +72,8 @@ export class GameState extends Schema {
   folded_players = 0
   matched_players = 0
   all_in_players = 0
+  chat_idx = 0
+  waiting = false
 }
 
 export function readCard(card: Card) {

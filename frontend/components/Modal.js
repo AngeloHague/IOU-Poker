@@ -1,7 +1,7 @@
 import React, { PureComponent, Component } from 'react'
 import { View, Text, TextInput, TouchableOpacity, Modal, Pressable } from 'react-native'
 import { styles } from '../styles/lobby'
-import { playerAction } from '../components/GameHelper'
+import { playerAction } from '../components/Listeners'
 import { normaliseFont, normaliseHeight, normaliseWidth } from '../styles/normalize'
 import { Entypo } from '@expo/vector-icons'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
@@ -25,7 +25,8 @@ export class Raise extends PureComponent {
         console.log(auth.currentUser.uid, ' is raising ', amount)
         //global.room.send("playerTurn", {action: 'bet', amount: amount})
         playerAction(global.room, 'raise', amount)
-        this.setState({amount: 0}) 
+        this.setState({amount: 0})
+        this.props.setModalVisible()
     }
 
     render() {

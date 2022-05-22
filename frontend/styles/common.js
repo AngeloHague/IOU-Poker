@@ -59,11 +59,11 @@ export default StyleSheet.create({
         height: normaliseHeight(51),
     },
     navButton: {
-        backgroundColor: poker_red,
+        //backgroundColor: poker_red,
         //backgroundColor: '#6a89b8',
         borderRadius: 4,
-        height: normaliseHeight(30),
-        width: normaliseWidth(100),
+        height: normaliseHeight(45),
+        width: normaliseWidth(45),
         justifyContent: 'center', //Centered horizontally
         alignItems: 'center', //Centered vertically
     },
