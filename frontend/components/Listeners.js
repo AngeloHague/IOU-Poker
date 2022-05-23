@@ -5,14 +5,14 @@ export function initListeners(component) {
     tableListener(component)
     
     room.onMessage("startGame", (counter) => {
-        console.log('Starting game')
+        //console.log('Starting game')
         component.setState({game_started: true})
     })
 
     // CHAT & NOTIFICATION LISTENER:
     room.onMessage("message", (message) => {
-        console.log('message received')
-        console.log(message)
+        //console.log('message received')
+        //console.log(message)
         component.setState({ chat_messages: [...component.state.chat_messages, message] })
         if (message.isNotification == true) component.setState({ notifications: [...component.state.notifications, message.message] })
     })
@@ -26,7 +26,7 @@ export function playerListener(component){
         //console.log(player, " has been added at ", key)
         global.room.state.players.set(key, player)
         //this.updatePlayers(global.room.state.players) // render players in current state
-        updatePlayers(component, global.room.state.players) // render players in current state
+        addPlayers(component, player) // render players in current state
 
         // If you want to track changes on a child object inside a map, this is a common pattern:
         player.onChange = (changes) => {
@@ -56,7 +56,7 @@ export function playerListener(component){
 
         player.cards.onAdd = (card, idx) => {
             //player.cards.push(card)
-            console.log("Card  (", card.value, ") added for: ", key)
+            //console.log("Card  (", card.value, ") added for: ", key)
             //console.log(player.cards.length)
             // renderPlayerHand(component, global.room.state);
             if (key === global.room.sessionId) {
@@ -87,14 +87,14 @@ export function playerListener(component){
 
         // force "onChange" to be called immediatelly
         player.triggerAll();
+    };
         
-        room.state.players.onRemove = (player, key) => {
-            console.log(player, "has been removed at", key);
-            global.room.state.players.delete(key)
-            updatePlayers(global.room.state.players) // render players in current state
+    global.room.state.players.onRemove = (player, key) => {
+        //console.log(player, "has been removed at", key);
+        global.room.state.players.delete(key)
+        removePlayers(component, key) // render players in current state
 
-            // remove your player entity from the game world!
-        };
+        // remove your player entity from the game world!
     };
 }
 
@@ -148,11 +148,37 @@ export function updatePlayers(component, players) {
         _players.set(_player.sid, _player)
     })
     component.setState({players: _players})
+    //console.log('Updated Players: ', _players)
+}
+
+// ADD PLAYER
+export function addPlayers(component, player) {
+    //const _players = []
+    const _players = component.state.players
+    const _player = {
+        name: player['name'],
+        uid: player['uid'],
+        sid: player['sessionId'],
+        ready: player['ready'],
+        chips: player['chips'],
+        current_bet: player['current_bet'],
+        folded: player['folded'],
+        cards: player['cards'],
+    }
+    _players.set(_player.sid, _player)
+    component.setState({players: _players})
+    //console.log('Updated Players: ', _players)
+}
+
+// REMOVE PLAYERS
+export function removePlayers(component, key) {
+    const _players = component.state.players
+    _players.delete(key)
+    component.setState({players: _players})
+    //console.log('Updated Players: ', _players)
 }
 
 // COMMUNICATE PLAYER ACTION WITH SERVER
 export function playerAction(room, action, amount) {
     room.send("playerTurn", {action: action, amount: amount})
 }
-
-// NOTIFICATION HELPER FUNCTIONS:

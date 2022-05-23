@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Text, TouchableOpacity, View, Image } from 'react-native'
+import { Text, TouchableOpacity, View, Image, Alert } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
 import common from '../../styles/common'
 import { initListeners } from '../../components/Listeners'
@@ -61,6 +61,20 @@ export default class GameLobbyScreen extends Component {
         this.setState({show_options: !options})
     }
 
+    leaveMatchAlert = () => this.state.game_started ? Alert.alert(
+        "Are you sure?",
+        "Leaving now will forfeit the match and be registered as a loss.",
+        [
+            {
+            text: "No",
+            //onPress: () => console.log("Cancel Pressed"),
+            style: "Cancel"
+            },
+            { text: "Yes", onPress: () => this.props.navigation.goBack() }
+        ]
+    ) : this.props.navigation.goBack()
+        
+
     // setHelpModalVisible = (visible) => {
     //     this.setState({helpModalVisible: visible})
     // }
@@ -98,7 +112,7 @@ export default class GameLobbyScreen extends Component {
             <View style={[common.container, {backgroundColor: '#c1c9c4'}]}>      
             <Background position='absolute' preserveAspectRatio="xMinYMin slice"/>
                 <View style={common.navBar}>
-                    <TouchableOpacity style={common.navButton} onPress={() => this.props.navigation.goBack()}><Text style={{ color: '#FFF', fontWeight: '500',  textAlign: 'center'}}><MaterialCommunityIcons name="keyboard-backspace" size={normaliseFont(40)} color="white" /></Text></TouchableOpacity>
+                    <TouchableOpacity style={common.navButton} onPress={() => this.leaveMatchAlert()}><Text style={{ color: '#FFF', fontWeight: '500',  textAlign: 'center'}}><MaterialCommunityIcons name="keyboard-backspace" size={normaliseFont(40)} color="white" /></Text></TouchableOpacity>
                     <Image style={common.navLogo} source={require('../../assets/Logo.png')} />
                     <TouchableOpacity style={common.navButton} onPress={() => this.showChat()}><Text style={{ color: '#FFF', fontWeight: '500',  textAlign: 'center'}}><MaterialCommunityIcons name="chat-processing" size={normaliseFont(40)} color="white" /></Text></TouchableOpacity>
                     <Chat modalVisible={this.state.show_chat} setModalVisible={this.showChat} messages={this.state.chat_messages} />

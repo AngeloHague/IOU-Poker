@@ -40,7 +40,7 @@ export class Player extends Schema {
 export class GameState extends Schema {
 
   @type('boolean') game_started: boolean = false
-  @type('string') host: string
+  //@type('string') host: string
   @type({map: Player}) players = new MapSchema<Player>()
   //@type({map: Player}) active_players = new MapSchema<Player>()
   //@type(['string']) folded_players = new ArraySchema<Player>()
