@@ -98,51 +98,55 @@ export class Game extends Room<GameState> {
   onJoin (client: Client, options: any) {
     let settings = options.settings
     console.log(client.sessionId, "joined ", this.roomId);
+    this.state.connected_players += 1
 
-    if (!this.state.host) {
-      this.state.host = client.sessionId
-      console.log(client.sessionId, " is now the host of ", this.roomId)
+    if (this.state.game_started == false) {
+      let player = new Player()
+      player.uid = settings.uid
+      player.name = settings.name
+      player.ready = false
+      player.chips = this.state.chips
+      player.sessionId = client.sessionId
+
+      this.state.players.set(client.sessionId, player)
     }
-
-    let player = new Player()
-    player.uid = settings.uid
-    player.name = settings.name
-    player.ready = false
-    player.chips = this.state.chips
-    player.sessionId = client.sessionId
     
-    let message = player.name + ' joined the room.'
+    let message = getPlayerName(this.state, client.sessionId) + ' has joined.'
     sendMessage(this, this.state, message, 'server', true)
-
-    this.state.players.set(client.sessionId, player)
   }
 
-  onLeave (client: Client, consented: boolean) {
-    if (this.state.game_started == false) {
-      this.state.players.delete(client.sessionId)
-      if (this.state.host == client.sessionId) {
-        console.log("Host has left room ", this.roomId)
-        let remaining_players = this.state.players.keys()
-        try {
-          let new_host = remaining_players.next()
-          this.state.host = new_host.value
-          console.log(this.state.host, " is now the host of ", this.roomId)
-        }
-        catch {
-          console.log("Can't assign new host, closing lobby")
-          this.onDispose()
+  async onLeave (client: Client, consented: boolean) {
+    try {
+      if (!this.state.game_started) {
+        let message = getPlayerName(this.state, client.sessionId) + ' has left the game.'
+        this.state.players.delete(client.sessionId)
+        sendMessage(this, this.state, message, 'server', true)
+        console.log(client.sessionId, "left!");
+      }
+      else {
+        if (consented) {
+          throw new Error('consented leave')
+        } else {
+          let message = getPlayerName(this.state, client.sessionId) + ' has disconnected. They have 60 seconds to reconnect before forfeiting.'
+          sendMessage(this, this.state, message, 'server', true)
+          //this.state.players.delete(client.sessionId)
+          this.state.connected_players -= 1
+          if (this.state.connected_players <= 0) {
+            this.onDispose()
+          }
+          await this.allowReconnection(client, 60)
+          console.log('Welcome Back')
+          this.state.connected_players +=1
+          message = getPlayerName(this.state, client.sessionId) + ' has returned.'
+          sendMessage(this, this.state, message, 'server', true)
         }
       }
-    }
-    else {
-      this.allowReconnection(client)
-      this.state.connected_players -= 1
-      if (this.state.connected_players <= 0) {
-        this.onDispose()
-      }
+    } catch(e) {
+      this.state.players.get(client.sessionId).isOut = true
+      let message = getPlayerName(this.state, client.sessionId) + ' has forfeited the match.'
+      sendMessage(this, this.state, message, 'server', true)
     }
     
-    console.log(client.sessionId, "left!");
   }
 
   async onDispose() {
