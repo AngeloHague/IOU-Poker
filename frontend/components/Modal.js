@@ -1,5 +1,5 @@
 import React, { PureComponent, Component } from 'react'
-import { View, Text, TextInput, TouchableOpacity, Modal, Pressable } from 'react-native'
+import { View, Text, TextInput, TouchableOpacity, Modal } from 'react-native'
 import { styles } from '../styles/lobby'
 import { playerAction } from '../components/Listeners'
 import { normaliseFont, normaliseHeight, normaliseWidth } from '../styles/normalize'
@@ -29,6 +29,11 @@ export class Raise extends PureComponent {
         this.props.setModalVisible()
     }
 
+    closeWindow = () => {
+        this.setState({amount: 0})
+        this.props.setModalVisible()
+    }
+
     render() {
         return (
             <Modal
@@ -44,7 +49,7 @@ export class Raise extends PureComponent {
                     <View style={[styles.modalView, styles.modalRaise]}>
                         <View style={{width: '100%', flex: 0, flexDirection: 'row', justifyContent: 'flex-end'}}>
                             <View />
-                        <TouchableOpacity onPress={this.props.setModalVisible} style={{width: normaliseWidth(47)}}>
+                        <TouchableOpacity onPress={this.closeWindow} style={{width: normaliseWidth(47)}}>
                             <Text style={{ color: 'black', fontWeight: '500', width: normaliseWidth(47), textAlign: 'center'  }}>
                                 <MaterialCommunityIcons name="close" size={normaliseWidth(26)} color="black" />
                             </Text>
@@ -125,6 +130,9 @@ export class Controls extends PureComponent {
 }
 
 export class Help extends PureComponent {
+    constructor(props) {
+        super(props)
+    }
 
     // componentDidMount() {
     //     console.log('Modal Help mounted')

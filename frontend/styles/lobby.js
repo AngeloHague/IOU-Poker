@@ -285,6 +285,10 @@ export const styles = StyleSheet.create({
         width: normaliseWidth(300),
         height: normaliseHeight(150),
     },
+    modalChat: {
+        width: normaliseWidth(300),
+        height: normaliseHeight(400),
+    },
     modalRaise: {
         width: normaliseWidth(375),
         height: normaliseHeight(225),

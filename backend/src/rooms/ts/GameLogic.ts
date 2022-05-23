@@ -241,6 +241,7 @@ function playerRaise(room: Room, state: GameState, player: Player, amount: numbe
     playerAllIn(room, state, player)
   } else if (player.current_bet + amount > state.largest_bet) {
     if (amount <= player.chips) {
+      player.chips -= amount
       player.current_bet += amount
       state.largest_bet = player.current_bet
       state.pot += amount
@@ -567,11 +568,21 @@ function checkIfGameConcluded(state: GameState) {
   return (playersOut == state.active_players.length-1) ? true : false
 }
 
+function announceGameWinner(room: Room, state: GameState) {
+  state.players.forEach((player) => {
+    if (player.chips != 0 && !player.isOut) {
+      let message = 'Game Over! ' + player.name + ' has won the game!'
+      sendMessage(room, state, message, 'server', true)
+    }
+  });
+}
+
 export function roundReset(room: Room, state: GameState) {
   if (checkIfGameConcluded(state))
   {
     // game is over
     console.log('Game Over: Only one player remaining')
+    announceGameWinner(room, state)
     concludeGame(room, state)
   } else {
     // reset variables

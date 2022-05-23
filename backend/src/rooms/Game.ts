@@ -1,6 +1,6 @@
 import { Room, Client } from "colyseus";
 import { GameState, Player, Card, newDeck, readCard, shuffle, findBestHand } from "./schema/GameState";
-import { playerTurn, startGame } from "./ts/GameLogic";
+import { getPlayerName, playerTurn, sendMessage, startGame } from "./ts/GameLogic";
 
 const ALPHANUMERIC = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
 
@@ -59,7 +59,8 @@ export class Game extends Room<GameState> {
     console.log('Game created: ', this.roomId)
 
     this.onMessage("message", (client, message) => {
-      console.log(client.sessionId, " said: ", message.contents)
+      console.log(client.sessionId, " said: ", message)
+      sendMessage(this, this.state, message, getPlayerName(this.state, client.sessionId), false)
     });
 
     this.onMessage("changeReadyState", (client, message) => {
@@ -109,6 +110,9 @@ export class Game extends Room<GameState> {
     player.ready = false
     player.chips = this.state.chips
     player.sessionId = client.sessionId
+    
+    let message = player.name + ' joined the room.'
+    sendMessage(this, this.state, message, 'server', true)
 
     this.state.players.set(client.sessionId, player)
   }
