@@ -5,6 +5,7 @@ import 'firebase/auth'
 import Background from '../../assets/background.svg'
 
 import { auth } from '../../firebase'
+import common from '../../styles/common'
 
 export default class RegisterScreen extends Component {
     static navigationOptions = {
@@ -42,30 +43,30 @@ export default class RegisterScreen extends Component {
         return (
             <KeyboardAvoidingView
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
-                style={styles.container}
+                style={common.container}
             >
-            <Background position='absolute' preserveAspectRatio="xMinYMin slice"/>
+            <Background position='absolute' style={{top: 0, left: 0}} preserveAspectRatio="xMinYMin slice"/>
                 <ScrollView>
-                <Text style={styles.greeting}>{'Right then.\nLet\'s make you an account.'}</Text>
+                <Text style={common.paddedGreeting}>{'Right then.\nLet\'s make you an account.'}</Text>
 
-                <View style={styles.errorMessage}>
-                    {this.state.errorMessage && <Text style={styles.error}>{this.state.errorMessage}</Text>}
+                <View style={common.errorMessage}>
+                    {this.state.errorMessage && <Text style={common.error}>{this.state.errorMessage}</Text>}
                 </View>
 
-                <View style={styles.form}>
+                <View style={common.form}>
                     <View>
-                        <Text style={styles.inputTitle}>Full Name</Text>
+                        <Text style={common.inputTitle}>Full Name</Text>
                         <TextInput
-                            style={styles.input}
+                            style={common.input}
                             textContentType='name'
                             onChangeText={name => this.setState({ name })}
                             value={this.state.name}
                         />
                     </View>
                     <View style={{ marginTop: 32 }}>
-                        <Text style={styles.inputTitle}>Email Address</Text>
+                        <Text style={common.inputTitle}>Email Address</Text>
                         <TextInput
-                            style={styles.input}
+                            style={common.input}
                             autocapitalize='none'
                             textContentType='emailAddress'
                             keyboardType='email-address'
@@ -74,9 +75,9 @@ export default class RegisterScreen extends Component {
                         />
                     </View>
                     <View style={{ marginTop: 32 }}>
-                        <Text style={styles.inputTitle}>Password</Text>
+                        <Text style={common.inputTitle}>Password</Text>
                         <TextInput
-                            style={styles.input}
+                            style={common.input}
                             secureTextEntry
                             autocapitalize='none'
                             textContentType='password'
@@ -85,9 +86,9 @@ export default class RegisterScreen extends Component {
                         />
                     </View>
                     <View style={{ marginTop: 32 }}>
-                        <Text style={styles.inputTitle}>Confirm Password</Text>
+                        <Text style={common.inputTitle}>Confirm Password</Text>
                         <TextInput
-                            style={styles.input}
+                            style={common.input}
                             secureTextEntry
                             autocapitalize='none'
                             textContentType='password'
@@ -97,12 +98,12 @@ export default class RegisterScreen extends Component {
                     </View>
                 </View>
 
-                <TouchableOpacity style={styles.button} onPress={this.handleSignUp}>
+                <TouchableOpacity style={common.button} onPress={this.handleSignUp}>
                     <Text style={{ color: '#FFF', fontWeight: '500' }}>Sign Up</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={{ alignSelf: 'center', marginTop: 32 }}>
                     <Text
-                    style={{ color: '#414959', fontSize: 13 }}
+                    style={{ color: '#c0c0c0', fontSize: 13 }}
                         onPress={() => this.props.navigation.goBack()}
                     >
                         Already have an account? <Text style={{ fontWeight: '500', color: '#E9446A' }}>Sign In</Text>
@@ -114,52 +115,3 @@ export default class RegisterScreen extends Component {
         )
     }
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'flex-end'
-    },
-    greeting: {
-        marginTop: 32,
-        fontSize: 18,
-        fontWeight: '400',
-        textAlign: 'center'
-    },
-    errorMessage: {
-        height: 72,
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginHorizontal: 30
-    },
-    error: {
-        color: '#E9446A',
-        fontSize: 13,
-        fontWeight: '600',
-        textAlign: 'center'
-    },
-    form: {
-        marginBottom: 48,
-        marginHorizontal: 30
-    },
-    inputTitle: {
-        color: '#8A8F9E',
-        fontSize: 10,
-        textTransform: 'uppercase'
-    },
-    input: {
-        borderBottomColor: '#8A8F9E',
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        height: 40,
-        fontSize: 15,
-        color: '#161F3D'
-    },
-    button: {
-        marginHorizontal: 30,
-        backgroundColor: '#E9446A',
-        borderRadius: 4,
-        height: 52,
-        alignItems: 'center',
-        justifyContent: 'center'
-    }
-})

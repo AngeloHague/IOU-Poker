@@ -113,7 +113,7 @@ export default class GameLobbyScreen extends Component {
             <Background position='absolute' preserveAspectRatio="xMinYMin slice"/>
                 <View style={common.navBar}>
                     <TouchableOpacity style={common.navButton} onPress={() => this.leaveMatchAlert()}><Text style={{ color: '#FFF', fontWeight: '500',  textAlign: 'center'}}><MaterialCommunityIcons name="keyboard-backspace" size={normaliseFont(40)} color="white" /></Text></TouchableOpacity>
-                    <Image style={common.navLogo} source={require('../../assets/Logo.png')} />
+                    <Image style={common.navLogo} source={require('../../assets/NavLogo.png')} />
                     <TouchableOpacity style={common.navButton} onPress={() => this.showChat()}><Text style={{ color: '#FFF', fontWeight: '500',  textAlign: 'center'}}><MaterialCommunityIcons name="chat-processing" size={normaliseFont(40)} color="white" /></Text></TouchableOpacity>
                     <Chat modalVisible={this.state.show_chat} setModalVisible={this.showChat} messages={this.state.chat_messages} />
                 </View>

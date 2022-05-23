@@ -8,8 +8,9 @@ export default StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: 'flex-end',
-        position: "relative",
+        position: "absolute",
         backgroundColor: 'blue',
+        top: 0, bottom: 0, left: 0, right: 0,
         //backgroundColor: '#f0f0f0',
         //backgroundColor: '#cfcfcf',
     },
@@ -25,6 +26,14 @@ export default StyleSheet.create({
         fontFamily: 'Oswald_400Regular',
         textAlign: 'center',
         color: 'white',
+    },
+    paddedGreeting: {
+        marginTop: normaliseHeight(140),
+        marginBottom: normaliseHeight(20),
+        fontSize: normaliseHeight(18),
+        fontWeight: '400',
+        textAlign: 'center',
+        color: '#fff'
     },
     mainMenu: {
         marginVertical: normaliseHeight(48),
@@ -55,8 +64,8 @@ export default StyleSheet.create({
     navLogo: {
         margin: 0,
         padding: 0,
-        width: normaliseWidth(63),
-        height: normaliseHeight(51),
+        width: normaliseWidth(75),
+        height: normaliseHeight(75),
     },
     navButton: {
         //backgroundColor: poker_red,

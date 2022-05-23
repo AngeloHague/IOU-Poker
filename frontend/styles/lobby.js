@@ -169,11 +169,13 @@ export const styles = StyleSheet.create({
         width: normaliseWidth(58),
         height: normaliseWidth(80),
         backgroundColor: '#fff',
+        position: 'relative',
         // backgroundColor: '#c1bad4',
         borderRadius: normaliseFont(10),
         borderWidth: normaliseWidth(1.5),
         borderColor: 'black',
         margin: 5,
+        zIndex: 1,
     },
     cardHeader: {
         flex: .75,

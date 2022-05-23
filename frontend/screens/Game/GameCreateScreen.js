@@ -73,10 +73,10 @@ export default class GameCreateScreen extends Component {
         return (
             <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"} style={common.container}>
-            <Background position='absolute' preserveAspectRatio="xMinYMin slice"/>
+            <Background position='absolute' style={{top: 0, left: 0}} preserveAspectRatio="xMinYMin slice"/>
                 <View style={common.navBar}>
                     <TouchableOpacity style={common.navButton} onPress={() => this.props.navigation.goBack()}><Text style={{ color: '#FFF', fontWeight: '500',  textAlign: 'center'}}><MaterialCommunityIcons name="keyboard-backspace" size={normaliseFont(40)} color="white" /></Text></TouchableOpacity>
-                    <Image style={common.navLogo} source={require('../../assets/Logo.png')} />
+                    <Image style={common.navLogo} source={require('../../assets/NavLogo.png')} />
                     <TouchableOpacity style={common.navButton} disabled={true}><Text style={{ color: '#FFF', fontWeight: '500',  textAlign: 'center'}}></Text></TouchableOpacity>
                 </View>
                 <ScrollView>
