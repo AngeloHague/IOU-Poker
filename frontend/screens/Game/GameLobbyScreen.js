@@ -13,6 +13,7 @@ import Background from '../../assets/background.svg'
 import FlashDisplayer from '../../components/FlashDisplayer'
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { normaliseFont } from '../../styles/normalize'
+import Chat from '../../components/Chat'
 
 export default class GameLobbyScreen extends Component {
     static navigationOptions = {
@@ -31,6 +32,7 @@ export default class GameLobbyScreen extends Component {
             ready: false,
             game_started: false,
             show_options: false,
+            show_chat: false,
             errorMessage: null,
             // game info:
             chips: 0,
@@ -51,7 +53,7 @@ export default class GameLobbyScreen extends Component {
     changeReadyState = () => {
         this.ready = !this.ready
         global.room.send("changeReadyState", {isReady: this.ready})
-        this.setState({ notifications: [...this.state.notifications, ('Player is now: ' + this.ready)] })
+        // this.setState({ notifications: [...this.state.notifications, ('Player is now: ' + this.ready)] }) // debug purposes
     }
 
     showOptions = () => {
@@ -59,16 +61,21 @@ export default class GameLobbyScreen extends Component {
         this.setState({show_options: !options})
     }
 
-    setHelpModalVisible = (visible) => {
-        this.setState({helpModalVisible: visible})
-    }
+    // setHelpModalVisible = (visible) => {
+    //     this.setState({helpModalVisible: visible})
+    // }
 
-    setRaiseModalVisible = (visible) => {
-        this.setState({raiseModalVisible: visible})
+    // setRaiseModalVisible = (visible) => {
+    //     this.setState({raiseModalVisible: visible})
+    // }
+
+    showChat = () => {
+        let chat = this.state.show_chat
+        this.setState({ show_chat: !chat });
     }
 
     componentDidMount() {
-        global.room.send("message", {contents: "mounted"}) // DEBUG PURPOSES
+        //global.room.send("message", 'mounted') // DEBUG PURPOSES
         console.log('Lobby mounted')
         //loadLobbyInfo(this, global.room);
         //this.updatePlayers(global.room.state.players) // render players in current state
@@ -93,7 +100,8 @@ export default class GameLobbyScreen extends Component {
                 <View style={common.navBar}>
                     <TouchableOpacity style={common.navButton} onPress={() => this.props.navigation.goBack()}><Text style={{ color: '#FFF', fontWeight: '500',  textAlign: 'center'}}><MaterialCommunityIcons name="keyboard-backspace" size={normaliseFont(40)} color="white" /></Text></TouchableOpacity>
                     <Image style={common.navLogo} source={require('../../assets/Logo.png')} />
-                    <TouchableOpacity style={common.navButton}><Text style={{ color: '#FFF', fontWeight: '500',  textAlign: 'center'}}><MaterialCommunityIcons name="chat-processing" size={normaliseFont(40)} color="white" /></Text></TouchableOpacity>
+                    <TouchableOpacity style={common.navButton} onPress={() => this.showChat()}><Text style={{ color: '#FFF', fontWeight: '500',  textAlign: 'center'}}><MaterialCommunityIcons name="chat-processing" size={normaliseFont(40)} color="white" /></Text></TouchableOpacity>
+                    <Chat modalVisible={this.state.show_chat} setModalVisible={this.showChat} messages={this.state.chat_messages} />
                 </View>
                 <View>
                 <ScrollView horizontal={true} style={styles.playerScroller}>

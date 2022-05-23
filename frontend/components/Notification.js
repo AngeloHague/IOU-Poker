@@ -5,7 +5,7 @@ import { normaliseHeight, normaliseWidth } from '../styles/normalize';
 export default class Notification extends PureComponent {
     constructor(props) {
         super(props)
-        console.log(props)
+        //console.log(props)
 
         this.state = {
           fadeAnimation: new Animated.Value(1),
@@ -33,13 +33,11 @@ export default class Notification extends PureComponent {
 
     //this.props.size
     render() {
-        if (this.state.visible) console.log('Component is visible')
-        else  console.log('Component is not visible')
         //let [width, height] = this.props.size
         if (this.props.notification) {
             let notification = this.props.notification
             return this.state.visible ? (
-                <Animated.View style={[{marginHorizontal: '5%', marginVertical: normaliseHeight(5), paddingVertical: normaliseHeight(5), backgroundColor: '#E9446A', borderRadius: 10, zIndex: 2, justifyContent: 'center', alignItems: 'center'}, {opacity: this.state.fadeAnimation}]}>
+                <Animated.View style={[{marginHorizontal: normaliseWidth(10), marginVertical: normaliseHeight(5), paddingVertical: normaliseHeight(5), backgroundColor: '#E9446A', borderRadius: 10, zIndex: 2, justifyContent: 'center', alignItems: 'center', alignSelf: 'center'}, {opacity: this.state.fadeAnimation}]}>
                     <Text style={{color: '#fff', fontWeight: 'bold', marginHorizontal: normaliseWidth(10)}}>{notification}</Text>
                 </Animated.View>
             ) : (<View></View>)

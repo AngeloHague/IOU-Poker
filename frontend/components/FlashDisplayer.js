@@ -6,10 +6,6 @@ import Notification from './Notification'
 export default class FlashDisplayer extends PureComponent {
     constructor(props) {
         super(props)
-        console.log(props)
-        this.state = {
-            html: (<></>)
-        }
     }
     
     delay(time) {
@@ -17,13 +13,12 @@ export default class FlashDisplayer extends PureComponent {
       }
 
     renderNotification(notifications) {
-        function removeNotifcation() {
-            this.setState({ cards: this.state.cards.slice(1) })
-        }
         const components = []
-        {[...notifications].map(notif => {
+        let idx = 0
+        {[...notifications].map(notif=> {
             let duration = 500
-            components.push(<Notification notification={notif} duration={duration} />)
+            components.push(<Notification key={'notification_'+idx} notification={notif} duration={duration} />)
+            idx+=1
         })}
         return components
     }

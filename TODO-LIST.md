@@ -10,5 +10,5 @@
 ## Low Priority
 7. Add list of available hands in help section
 8. Create Controls help screen
-9. In-game Chat
+9. ~~In-game Chat~~
 10. Potentially add Friend System, tho optional due to Room Code system

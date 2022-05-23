@@ -139,7 +139,7 @@ export default class GameOptions extends PureComponent {
                     
                     {this.props.game_started &&
                     <TouchableOpacity style={styles.optionsButton} onPress={() =>{this.playerCheck()}}>
-                        <Text style={{ color: '#FFF', fontWeight: '500' }}>{this.props.largest_bet > this.props.chips ? 'All in' : (this.props.largest_bet > this.props.current_bet ? 'Call' : 'Check')}</Text>
+                        <Text style={{ color: '#FFF', fontWeight: '500' }}>{this.props.largest_bet > (this.props.chips + this.props.current_bet) ? 'All in' : (this.props.largest_bet > this.props.current_bet ? 'Call' : 'Check')}</Text>
                     </TouchableOpacity>}
                     {this.props.game_started && <View>
                     <TouchableOpacity style={styles.optionsButton} onPress={this.showRaise}>
