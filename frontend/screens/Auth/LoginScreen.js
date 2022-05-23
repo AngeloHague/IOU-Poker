@@ -5,6 +5,7 @@ import 'firebase/auth'
 import Background from '../../assets/background.svg'
 
 import { auth } from '../../firebase'
+import common from '../../styles/common'
 
 export default class LoginScreen extends Component {
     static navigationOptions = {
@@ -30,22 +31,22 @@ export default class LoginScreen extends Component {
         return (
             <KeyboardAvoidingView
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
-                style={styles.container}
+                style={common.container}
             >
-            <Background position='absolute' preserveAspectRatio="xMinYMin slice"/>
+            <Background position='absolute' style={{top: 0, left: 0}} preserveAspectRatio="xMinYMin slice"/>
                 <ScrollView>
                 <StatusBar barStyle='light-content'></StatusBar>
-                <Text style={styles.greeting}>{'Hey there.\nCome on in.'}</Text>
+                <Text style={common.paddedGreeting}>{'Hey there.\nCome on in.'}</Text>
 
-                <View style={styles.errorMessage}>
-                    {this.state.errorMessage && <Text style={styles.error}>{this.state.errorMessage}</Text>}
+                <View style={common.errorMessage}>
+                    {this.state.errorMessage && <Text style={common.error}>{this.state.errorMessage}</Text>}
                 </View>
 
-                <View style={styles.form}>
+                <View style={common.form}>
                     <View>
-                        <Text style={styles.inputTitle}>Email Address</Text>
+                        <Text style={common.inputTitle}>Email Address</Text>
                         <TextInput
-                            style={styles.input}
+                            style={common.input}
                             autocapitalize='none'
                             textContentType='emailAddress'
                             keyboardType='email-address'
@@ -54,9 +55,9 @@ export default class LoginScreen extends Component {
                         />
                     </View>
                     <View style={{ marginTop: 32 }}>
-                        <Text style={styles.inputTitle}>Password</Text>
+                        <Text style={common.inputTitle}>Password</Text>
                         <TextInput
-                            style={styles.input}
+                            style={common.input}
                             secureTextEntry
                             textContentType='password'
                             autocapitalize='none'
@@ -66,14 +67,14 @@ export default class LoginScreen extends Component {
                     </View>
                 </View>
 
-                <TouchableOpacity style={styles.button} onPress={this.handleLogin}>
+                <TouchableOpacity style={common.button} onPress={this.handleLogin}>
                     <Text style={{ color: '#FFF', fontWeight: '500' }}>Sign In</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={{ alignSelf: 'center', marginTop: 32 }}
                     onPress={() => this.props.navigation.navigate('Register')}
                 >
-                    <Text style={{ color: '#414959', fontSize: 13 }}>
+                    <Text style={{ color: '#c0c0c0', fontSize: 13 }}>
                         Don't have an account? <Text style={{ fontWeight: '500', color: '#E9446A' }}>Sign up here</Text>
                     </Text>
                 </TouchableOpacity>
@@ -84,50 +85,50 @@ export default class LoginScreen extends Component {
     }
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1
-    },
-    greeting: {
-        marginTop: 32,
-        fontSize: 18,
-        fontWeight: '400',
-        textAlign: 'center'
-    },
-    errorMessage: {
-        height: 72,
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginHorizontal: 30
-    },
-    error: {
-        color: '#E9446A',
-        fontSize: 13,
-        fontWeight: '600',
-        textAlign: 'center'
-    },
-    form: {
-        marginBottom: 48,
-        marginHorizontal: 30
-    },
-    inputTitle: {
-        color: '#8A8F9E',
-        fontSize: 10,
-        textTransform: 'uppercase'
-    },
-    input: {
-        borderBottomColor: '#8A8F9E',
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        height: 40,
-        fontSize: 15,
-        color: '#161F3D'
-    },
-    button: {
-        marginHorizontal: 30,
-        backgroundColor: '#E9446A',
-        borderRadius: 4,
-        height: 52,
-        alignItems: 'center',
-        justifyContent: 'center'
-    }
-})
+// const styles = StyleSheet.create({
+//     container: {
+//         flex: 1
+//     },
+//     greeting: {
+//         marginTop: 32,
+//         fontSize: 18,
+//         fontWeight: '400',
+//         textAlign: 'center'
+//     },
+//     errorMessage: {
+//         height: 72,
+//         alignItems: 'center',
+//         justifyContent: 'center',
+//         marginHorizontal: 30
+//     },
+//     error: {
+//         color: '#E9446A',
+//         fontSize: 13,
+//         fontWeight: '600',
+//         textAlign: 'center'
+//     },
+//     form: {
+//         marginBottom: 48,
+//         marginHorizontal: 30
+//     },
+//     inputTitle: {
+//         color: '#8A8F9E',
+//         fontSize: 10,
+//         textTransform: 'uppercase'
+//     },
+//     input: {
+//         borderBottomColor: '#8A8F9E',
+//         borderBottomWidth: StyleSheet.hairlineWidth,
+//         height: 40,
+//         fontSize: 15,
+//         color: '#161F3D'
+//     },
+//     button: {
+//         marginHorizontal: 30,
+//         backgroundColor: '#E9446A',
+//         borderRadius: 4,
+//         height: 52,
+//         alignItems: 'center',
+//         justifyContent: 'center'
+//     }
+// })

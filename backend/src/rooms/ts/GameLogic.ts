@@ -272,8 +272,8 @@ function nextPlayer(room: Room, state: GameState) {
   } else {
     state.current_player = key
     console.log('Next player set: ', key)
+    announceWhoseTurn(room, state);
   }
-  announceWhoseTurn(room, state);
 }
 
 function revealHands(state: GameState) {

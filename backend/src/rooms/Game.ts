@@ -70,7 +70,7 @@ export class Game extends Room<GameState> {
         player.ready = message.isReady
         this.state.players.set(client.sessionId, player)
         if (this.readyToStart()) {
-          let timeout = 1 // debug purposes
+          let timeout = 3 // debug purposes
           var timer = setInterval(() => {
             if (timeout <= 0) {
               clearInterval(timer)
@@ -80,7 +80,9 @@ export class Game extends Room<GameState> {
               console.log('Player is no longer ready.')
               clearInterval(timer)
             } else {
-              console.log('Starting game in: ', timeout)
+              //console.log('Starting game in: ', timeout)
+              let message = 'Starting game in ' + (timeout)
+              sendMessage(this, this.state, message, 'server', true)
               timeout--
             }
           }, 1000);

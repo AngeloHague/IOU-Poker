@@ -22,8 +22,8 @@ export default class PlayerHand extends Component {
                         <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
                             {/* <Card card={this.props.cards[0]} style={[styles.card, { width: normaliseWidth(75), height: normaliseWidth(100) }]} large={true} />
                             <Card card={this.props.cards[1]} style={[styles.card, { width: normaliseWidth(75), height: normaliseWidth(100) }]} large={true} /> */}
-                            <Card card={this.props.cards[0]} style={styles.card} />
-                            <Card card={this.props.cards[1]} style={styles.card} />
+                            <Card card={this.props.cards[0]} style={[styles.card, styles.card1, {marginLeft: normaliseWidth(0)}]} />
+                            <Card card={this.props.cards[1]} style={[styles.card, styles.card2, {marginLeft: normaliseWidth(0)}]} />
                         </View>
                     </View>
                 </View>

@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, KeyboardAvoidingView, ScrollView, Image } from 'react-native'
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, KeyboardAvoidingView, ScrollView, Image, Alert } from 'react-native'
 import firebase from 'firebase/app'
 import 'firebase/auth'
 import * as Colyseus from "colyseus.js"
@@ -29,12 +29,25 @@ export default class HomeScreen extends Component {
         firebase.auth().signOut()
     }
 
+    signOutAlert = () => { Alert.alert(
+        "Are you sure?",
+        "",
+        [
+            {
+            text: "No",
+            //onPress: () => console.log("Cancel Pressed"),
+            style: "Cancel"
+            },
+            { text: "Yes", onPress: () => firebase.auth().signOut() }
+        ]
+    )}
+
     render() {
         return (
             <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}
             style = {styles.container} >
-                <Background position='absolute' preserveAspectRatio="xMinYMin slice"/>
+            <Background position='absolute' style={{top: 0, left: 0}} preserveAspectRatio="xMinYMin slice"/>
                 <ScrollView>
                 <View style = {styles.mainMenu} >
                     <Image style={styles.bigLogo} source={require('../assets/Logo.png')} />
@@ -80,7 +93,7 @@ export default class HomeScreen extends Component {
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={[styles.button, {marginVertical: normaliseHeight(10)}]}
-                    onPress={this.signOutUser}
+                    onPress={this.signOutAlert}
                 >
                         <Text style={styles.buttonText}>Log Out</Text>
                 </TouchableOpacity>

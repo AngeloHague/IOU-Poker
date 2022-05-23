@@ -1,3 +1,5 @@
+import { Vibration } from "react-native"
+
 // INITIATE ALL LISTENERS USING SINGLE FUNCTION:
 export function initListeners(component) {
     playerListener(component)
@@ -123,6 +125,10 @@ export function tableListener(component) {
     global.room.state.listen('current_player', (value, previous) => {
         //console.log('Current player is now: ', value)
         component.setState({current_player: value})
+        if (global.room.sessionId === value) {
+            // vibrate phone
+            Vibration.vibrate()
+        }
     })
     global.room.state.listen('largest_bet', (value, previous) => {
         //console.log('Current player is now: ', value)
