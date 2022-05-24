@@ -12,8 +12,9 @@ import Table from '../../components/Table'
 import Background from '../../assets/background.svg'
 import FlashDisplayer from '../../components/FlashDisplayer'
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { normaliseFont } from '../../styles/normalize'
+import { normaliseFont, normaliseHeight } from '../../styles/normalize'
 import Chat from '../../components/Chat'
+import TurnTimer from '../../components/TurnTimer'
 
 export default class GameLobbyScreen extends Component {
     static navigationOptions = {
@@ -31,6 +32,7 @@ export default class GameLobbyScreen extends Component {
             player_html: (<View></View>),
             ready: false,
             game_started: false,
+            game_over: false,
             show_options: false,
             show_chat: false,
             errorMessage: null,
@@ -44,7 +46,6 @@ export default class GameLobbyScreen extends Component {
             small_blind: null,
             current_player: null,
             current_bet: 0,
-            largest_bet: 0,
             chat_messages: [],
             notifications: [],
         }
@@ -61,7 +62,7 @@ export default class GameLobbyScreen extends Component {
         this.setState({show_options: !options})
     }
 
-    leaveMatchAlert = () => this.state.game_started ? Alert.alert(
+    leaveMatchAlert = () => this.state.game_started && !this.state.game_over ? Alert.alert(
         "Are you sure?",
         "Leaving now will forfeit the match and be registered as a loss.",
         [
@@ -131,7 +132,10 @@ export default class GameLobbyScreen extends Component {
                         <View style={common.errorMessage}>
                             {this.state.errorMessage && <Text style={common.error}>{this.state.errorMessage}</Text>}
                         </View>}
-                        <FlashDisplayer notifications={this.state.notifications} />
+                        <View style={{width: '100%', height: normaliseHeight('50')}} >
+                            {this.state.game_started && <TurnTimer />}
+                            <FlashDisplayer notifications={this.state.notifications} />
+                        </View>
                         {!this.state.game_started && LobbyInfo(this)}
                         {this.state.game_started &&
                         <View style={{ flex: 1, flexDirection: 'column'}}>
@@ -140,7 +144,7 @@ export default class GameLobbyScreen extends Component {
                         </View>}
                     </View>
                 </View>
-                <GameOptions current_bet={this.state.current_bet} largest_bet={this.state.largest_bet} chips={this.state.chips} game_started={this.state.game_started} show_options={this.state.show_options} showOptions={this.showOptions} changeReadyState={this.changeReadyState} />
+                <GameOptions current_bet={this.state.current_bet} chips={this.state.chips} game_started={this.state.game_started} show_options={this.state.show_options} showOptions={this.showOptions} changeReadyState={this.changeReadyState} />
             </View>
         )
     }

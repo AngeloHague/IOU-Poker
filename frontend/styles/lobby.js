@@ -133,6 +133,7 @@ export const styles = StyleSheet.create({
     },
     board: {
         flex: 1,
+        zIndex: 0,
         //backgroundColor: 'red', // debug purposes
     },
     cardContainer: {

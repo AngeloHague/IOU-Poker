@@ -25,7 +25,7 @@ class PlayerCard extends PureComponent {
         
         return (
         <View style={[styles.playerCard, {borderColor: borderColor}]}>
-        <Text style={styles.playerName}>{this.props.player.sid}</Text>
+        <Text style={styles.playerName}>{this.props.player.name}</Text>
             {/* <Text style={styles.playerName}>{this.props.player.name}</Text> */}
             {(this.props.player.cards.length == 2) ? <View style={styles.cardContainer}>
                 <View >

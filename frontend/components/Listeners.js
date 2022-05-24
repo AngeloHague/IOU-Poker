@@ -10,6 +10,11 @@ export function initListeners(component) {
         //console.log('Starting game')
         component.setState({game_started: true})
     })
+    
+    room.onMessage("gameOver", (counter) => {
+        //console.log('Starting game')
+        component.setState({game_over: true})
+    })
 
     // CHAT & NOTIFICATION LISTENER:
     room.onMessage("message", (message) => {
@@ -70,7 +75,7 @@ export function playerListener(component){
             card.onChange = (change) => {
                 //console.log('Card cahnged: ', card, ' at: ', idx)
                 if (card.revealed === true) {
-                    console.log('Card revealed: ', card.value)
+                    //console.log('Card revealed: ', card.value)
                     let players = component.state.players
                     let player = players.get(key)
                     player.cards[idx] = card
@@ -80,7 +85,7 @@ export function playerListener(component){
         }
 
         player.cards.onRemove = (card) => {
-            console.log("Card removed: ", card)
+            //console.log("Card removed: ", card)
             component.setState(() => { 
                 let empty = []
                 return {player_hand: empty}
@@ -129,10 +134,6 @@ export function tableListener(component) {
             // vibrate phone
             Vibration.vibrate()
         }
-    })
-    global.room.state.listen('largest_bet', (value, previous) => {
-        //console.log('Current player is now: ', value)
-        component.setState({largest_bet: value})
     })
 }
 

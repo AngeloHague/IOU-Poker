@@ -112,7 +112,7 @@ export default StyleSheet.create({
         backgroundColor: poker_red,
         //backgroundColor: '#6a89b8',
         borderRadius: normaliseHeight(4),
-        height: normaliseHeight(50),
+        height: normaliseHeight(45),
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -121,5 +121,13 @@ export default StyleSheet.create({
         fontWeight: '500',
         textTransform: 'uppercase'
         //fontFamily: 'Oswald_400Regular',
+    },
+    debtButton: {
+        //backgroundColor: poker_red,
+        //backgroundColor: '#6a89b8',
+        borderRadius: 10,
+        height: normaliseHeight(50), width: normaliseWidth(110),
+        justifyContent: 'center', //Centered horizontally
+        alignItems: 'center', //Centered vertically
     },
 })

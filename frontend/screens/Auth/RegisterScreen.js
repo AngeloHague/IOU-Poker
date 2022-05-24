@@ -4,7 +4,7 @@ import firebase from 'firebase/app'
 import 'firebase/auth'
 import Background from '../../assets/background.svg'
 
-import { auth } from '../../firebase'
+import { auth, db } from '../../firebase'
 import common from '../../styles/common'
 
 export default class RegisterScreen extends Component {
@@ -58,7 +58,7 @@ export default class RegisterScreen extends Component {
                         <Text style={common.inputTitle}>Full Name</Text>
                         <TextInput
                             style={common.input}
-                            textContentType='name'
+                            textContentType='emailAddress'
                             onChangeText={name => this.setState({ name })}
                             value={this.state.name}
                         />

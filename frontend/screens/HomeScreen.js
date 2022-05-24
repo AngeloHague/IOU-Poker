@@ -7,6 +7,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { normaliseHeight, normaliseWidth } from '../styles/normalize'
 import styles, { poker_red } from '../styles/common'
 import Background from '../assets/background.svg'
+import { auth } from '../firebase'
 // import Background from '../assets/SVGs'
 
 export default class HomeScreen extends Component {
@@ -21,7 +22,7 @@ export default class HomeScreen extends Component {
     }
 
     componentDidMount() {
-        const {email, displayName, uid} = firebase.auth().currentUser
+        const {email, displayName, uid} = auth.currentUser
         this.setState({email, displayName, uid})
     }
 
@@ -80,7 +81,7 @@ export default class HomeScreen extends Component {
                     <Text style={styles.buttonText}>Create a Game</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                    style={[styles.button, {marginVertical: normaliseHeight(10)}]}
+                    style={[styles.button, {marginVertical: normaliseHeight(5)}]}
                     onPress={() => this.props.navigation.navigate('GameJoin')}
                 >
                     <Text style={styles.buttonText}>Join a Game</Text>
