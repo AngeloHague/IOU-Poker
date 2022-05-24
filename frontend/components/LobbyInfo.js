@@ -2,6 +2,10 @@ import React, { Component } from 'react'
 import { Text, TextInput, TouchableOpacity, StyleSheet, View, KeyboardAvoidingView, Image } from 'react-native'
 import { styles } from '../styles/lobby'
 
+async function copyToClipboard (component) {
+    await Clipboard.setStringAsync(component.state.room_id);
+    };
+
 export function LobbyInfo(component) {
     const stake = (global.room.state.stake == null || global.room.state.stake == 'null' || global.room.state.stake == '' || global.room.state.stake == ' ') ? 'Nothing' : (global.room.state.stake)
     const amount = global.room.state.amount
@@ -12,6 +16,8 @@ export function LobbyInfo(component) {
         <View>
             <View style={styles.roomCodeContainer}>
                 <Text style={styles.heading}>Join code:</Text>
+                <View>
+                </View>
                 <Text style={styles.gameCode}>{component.state.room_id}</Text>
             </View>
             <View style={styles.gameInfoParentContainer}>

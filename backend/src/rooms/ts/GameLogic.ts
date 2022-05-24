@@ -7,6 +7,7 @@ import { debts } from "../../firebase";
 
 // START GAME:
 export function startGame(room: Room, state: GameState) {
+  room.clock.start()
   state.game_started = true
   //this.lock() // prevent new users joining
   state.connected_players = state.players.size
@@ -180,6 +181,7 @@ function playerFold(room: Room, state: GameState, player: Player) {
   player.isFolded = true
   state.folded_players+=1
   let message = getPlayerName(state, player.sessionId) + ' has folded.'
+  sendMessage(room, state, message, 'server', true)
   checkIfStageOver(room, state)
 }
 
@@ -191,7 +193,7 @@ function playerFold(room: Room, state: GameState, player: Player) {
 
 function playerCheck(room: Room, state: GameState, player: Player) {
   if (player.current_bet == state.largest_bet || player.chips == 0) {
-      let message = getPlayerName(state, player.sessionId) + " chose to check."
+      let message = getPlayerName(state, player.sessionId) + " has checked."
       sendMessage(room, state, message, 'server', true)
       console.log(player.sessionId, " checked successfully", '. Total Pot: ', state.pot)
       state.matched_players += 1
@@ -213,7 +215,7 @@ function playerCall(room: Room, state: GameState, player: Player) {
   player.chips -= increase
   state.matched_players+=1
   state.pot += increase
-  let message = getPlayerName(state, player.sessionId) + ' called, adding ' + increase + '.'
+  let message = getPlayerName(state, player.sessionId) + ' called, adding ' + increase + ' to the pot.'
   sendMessage(room, state, message, 'server', true)
   console.log(player.sessionId + ' called, adding ' + increase + '. Total Pot: ' + state.pot)
   checkIfStageOver(room, state)
@@ -230,7 +232,7 @@ function playerAllIn(room: Room, state: GameState, player: Player) {
   } else state.matched_players+=1
   state.all_in_players += 1
   state.pot += amount
-  let message = getPlayerName(state, player.sessionId) + ' went all-in with: ' + amount
+  let message = getPlayerName(state, player.sessionId) + ' went all-in with ' + amount + '.'
   sendMessage(room, state, message, 'server', true)
   console.log(player.sessionId + ' went all-in with: ' + amount + '. Total Pot: ' + state.pot)
   checkIfStageOver(room, state)
@@ -246,7 +248,7 @@ function playerRaise(room: Room, state: GameState, player: Player, amount: numbe
       state.largest_bet = player.current_bet
       state.pot += amount
       state.matched_players = 1
-      let message = getPlayerName(state, player.sessionId) + ' raised by ' + amount
+      let message = getPlayerName(state, player.sessionId) + ' raised by ' + amount + '.'
       sendMessage(room, state, message, 'server', true)
       console.log(player.sessionId + ' raised by: ' + amount + '. Total Pot: ' + state.pot)
       checkIfStageOver(room, state)
@@ -433,6 +435,7 @@ function revealCommunityCards(amount: string, state: GameState) {
   }
 }
 
+// Called at the end every turn to progress to the next stage of the game
 export function checkIfStageOver(room: Room, state: GameState) {
   // if everyone else has folded, last player remaining wins:
   if (state.active_players.length-1 == state.folded_players) {
@@ -569,12 +572,18 @@ function checkIfGameConcluded(state: GameState) {
 }
 
 function announceGameWinner(room: Room, state: GameState) {
+  state.turn_idx+=1
   state.players.forEach((player) => {
     if (player.chips != 0 && !player.isOut) {
       let message = 'Game Over! ' + player.name + ' has won the game!'
+      state.game_over = true
       sendMessage(room, state, message, 'server', true)
+      sendMessage(room, state, 'Lobby disposing in 60 seconds.', 'server', true)
     }
   });
+  room.clock.setTimeout(() => {
+    room.disconnect()
+  }, 60_000); // 60 seconds
 }
 
 export function roundReset(room: Room, state: GameState) {
@@ -609,9 +618,9 @@ async function concludeGame(room: Room, state: GameState) {
     let [winners, losers]: any = [[],[]]
     state.players.forEach((player) => {
       if (player.chips === 0 || player.isOut) {
-        losers.push(player.uid)
+        losers.push(player.sessionId)
       } else {
-        winners.push(player.uid)
+        winners.push(player.sessionId)
       }
     })
     if (winners.length == 1) {
@@ -620,10 +629,12 @@ async function concludeGame(room: Room, state: GameState) {
         let debt = {
           amount: state.amount,
           stake: state.stake,
-          sender: loser,
-          recipient: winner,
-          approved_by_loser: false,
-          approved_by_winner: false,
+          sender: getPlayerUID(state, loser),
+          senderName: getPlayerName(state, loser),
+          recipient: getPlayerUID(state, winner),
+          recipientName: getPlayerName(state, winner),
+          approved_by_sender: false,
+          approved_by_recipient: false,
           completed: false,
         }
         debts.add(debt).then((res: any) => {
@@ -647,9 +658,25 @@ export function getPlayerUID(state: GameState, clientID: string) {
 }
 
 export function announceWhoseTurn(room: Room, state: GameState) {
-  console.log("Player Turn: ", state.current_player)
-  let message = 'It is now ' + getPlayerName(state, state.current_player) + '\'s turn.'
+  state.turn_idx+=1
+  let player = state.current_player
+  console.log("Player Turn: ", player)
+  let message = 'It is now ' + getPlayerName(state, player) + '\'s turn.'
   sendMessage(room, state, (message), 'server', true)
+  
+  let turnIdx = state.turn_idx
+  console.log('Starting %s\'s turn timer.', player)
+  let turnTimer = room.clock.setTimeout(() => {
+    playerFold(room, state, state.players.get(player))
+  }, 60_000); // 60 seconds
+  let interval = room.clock.setInterval(() => {
+    //console.log('Checking %s\'s turn timer.', player)
+    if (turnIdx != state.turn_idx) {
+      console.log('Clearing %s\'s turn timer.', player)
+      turnTimer.clear()
+      interval.clear()
+    }
+  }, 1000);
 }
 
 export function sendMessage(room: Room, state: GameState, contents: string, sender: string, is_notif: boolean) {

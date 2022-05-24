@@ -54,8 +54,8 @@ export class Game extends Room<GameState> {
     this.state.b_blind = parseInt(settings.b_blind)
     this.state.s_blind = parseInt(settings.s_blind)
 
-    //this.roomId = await this.generateRoomId(); // get unique room code
-    this.roomId = '1111'; // create game with set room code for test
+    this.roomId = await this.generateRoomId(); // get unique room code
+    //this.roomId = '1111'; // create game with set room code for testing purposes
     console.log('Game created: ', this.roomId)
 
     this.onMessage("message", (client, message) => {
@@ -119,7 +119,7 @@ export class Game extends Room<GameState> {
 
   async onLeave (client: Client, consented: boolean) {
     try {
-      if (!this.state.game_started) {
+      if (!this.state.game_started || this.state.game_over) {
         let message = getPlayerName(this.state, client.sessionId) + ' has left the game.'
         this.state.players.delete(client.sessionId)
         sendMessage(this, this.state, message, 'server', true)
@@ -145,7 +145,7 @@ export class Game extends Room<GameState> {
       }
     } catch(e) {
       this.state.players.get(client.sessionId).isOut = true
-      let message = getPlayerName(this.state, client.sessionId) + ' has forfeited the match.'
+      let message = getPlayerName(this.state, client.sessionId) + ' has forfeited the match. If it is still their turn, please wait for the turn timer to expire.'
       sendMessage(this, this.state, message, 'server', true)
     }
     

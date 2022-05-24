@@ -61,6 +61,7 @@ export class GameState extends Schema {
   @type('boolean') round_over: boolean = false // 0 - hidden, 1 - flop, 2 - turn, 3 - river
   @type('number') pot: number
   @type('string') winner: string
+  @type('number') turn_idx: number = 0
 
   deck: Card[]
   dealer_idx = 0
@@ -73,7 +74,7 @@ export class GameState extends Schema {
   matched_players = 0
   all_in_players = 0
   chat_idx = 0
-  waiting = false
+  game_over = false
 }
 
 export function readCard(card: Card) {
