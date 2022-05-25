@@ -7,7 +7,7 @@ import { Entypo } from '@expo/vector-icons'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { auth } from '../firebase'
 import { poker_red } from '../styles/common'
-import { Raise } from './Modal'
+import { HandRankings, Help, Raise } from './Modal'
 
 class ModalHelp extends PureComponent {
     constructor(props) {
@@ -66,10 +66,6 @@ class ModalHelp extends PureComponent {
     }
 }
 
-class ModalRaise extends Component {
-
-}
-
 export default class GameOptions extends PureComponent {
     constructor(props) {
         super(props)
@@ -104,6 +100,11 @@ export default class GameOptions extends PureComponent {
         this.setState({ show_help: !help });
     }
     
+    showHands = () => {
+        let hands = this.state.show_hands
+        this.setState({ show_help: !hands });
+    }
+    
     showRaise = () => {
         let raise = this.state.show_raise
         this.setState({ show_raise: !raise });
@@ -136,7 +137,8 @@ export default class GameOptions extends PureComponent {
                                 {this.state.show_options ? (<Entypo name="chevron-thin-down" size={32} color="black" />) : (<Entypo name="chevron-thin-up" size={32} color="black" />)}
                             </Text>
                         </TouchableOpacity>
-                        <ModalHelp modalVisible={this.state.show_help} setModalVisible={this.showHelp} />
+                        {/* <Help modalVisible={this.state.show_help} setModalVisible={this.showHelp} /> */}
+                        <HandRankings modalVisible={this.state.show_help} setModalVisible={this.showHelp} />
                         <Raise current_bet={this.props.current_bet} chips={this.props.chips} modalVisible={this.state.show_raise} setModalVisible={this.showRaise} />
                         <TouchableOpacity onPress={this.showHelp}>
                             <Text style={{ color: 'black', fontWeight: '500', width: normaliseWidth(47), textAlign: 'center'  }}>

@@ -1,5 +1,5 @@
 import React, { PureComponent, Component } from 'react'
-import { View, Text, TextInput, TouchableOpacity, Modal } from 'react-native'
+import { View, Text, TextInput, TouchableOpacity, Modal, ScrollView } from 'react-native'
 import { styles } from '../styles/lobby'
 import { playerAction } from '../components/Listeners'
 import { normaliseFont, normaliseHeight, normaliseWidth } from '../styles/normalize'
@@ -7,6 +7,7 @@ import { Entypo } from '@expo/vector-icons'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { auth } from '../firebase'
 import common, { poker_red } from '../styles/common'
+import Card from './Card'
 
 export class Raise extends PureComponent {
     constructor(props) {
@@ -114,9 +115,81 @@ export class Raise extends PureComponent {
 export class HandRankings extends PureComponent {
     constructor(props) {
         super(props)
+        this.hands = [
+            ['Royal Flush',['AS','KS','QS','JS','TS']],
+            ['Straight Flush',['9H','8H','7H','6H','5H']],
+            ['Four of a Kind',['AC','AH','AS','AD','3S']],
+            ['Full House',['KH','KS','KD','JC','JD']],
+            ['Flush',['AS','QS','JS','6S','2S']],
+            ['Straight',['9D','8S','7H','6C','5D']],
+            ['Three of Kind',['4H','4S','4D','8C','AD']],
+            ['Two Pair',['AS','AH','QC','QD','5C']],
+            ['Pair',['AD','AC','7H','5S','3D']],
+            ['High Card',['AS','QH','TC','5H','3S']],
+        ]
     }
+
+    renderHand(hand, idx) {
+        let [title, values] = hand
+        let cards = [];
+        if (values.length >= 1) {
+            values.forEach((val) => {
+                cards.push({value: val})
+            })
+            return (cards.length == 5) ? <View key={'PokerHand_'+idx}>
+            <Text style={{fontSize: normaliseFont(14), fontWeight: 'bold', color: (idx % 2 == 0) ? poker_red : 'black'}}>{idx+1}. {title}</Text>
+            <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-evenly'}}>
+                <Card card={cards[0]} style={[styles.card, { width: normaliseWidth(45), height: normaliseWidth(60) }]} small={true}  />
+                <Card card={cards[1]} style={[styles.card, { width: normaliseWidth(45), height: normaliseWidth(60) }]} small={true}  />
+                <Card card={cards[2]} style={[styles.card, { width: normaliseWidth(45), height: normaliseWidth(60) }]} small={true}  />
+                <Card card={cards[3]} style={[styles.card, { width: normaliseWidth(45), height: normaliseWidth(60) }]} small={true}  />
+                <Card card={cards[4]} style={[styles.card, { width: normaliseWidth(45), height: normaliseWidth(60) }]} small={true}  />
+            </View>
+        </View> : <></>
+        } else {
+            return <></>
+        }
+        
+    }
+
+    renderPokerHands(hands) {
+        const components = []
+        {[...hands].map((hand, idx) => {
+            components.push(this.renderHand(hand, idx))
+        })}
+        return components
+    }
+
     render() {
-        <></>
+        return(
+            <Modal
+            animationType="slide"
+            transparent={true}
+            visible={this.props.modalVisible}
+            onRequestClose={() => {
+                Alert.alert("Modal has been closed.");
+                this.setModalVisible(!modalVisible);
+            }}
+        >
+            <View style={styles.centeredView}>
+                <View style={[styles.modalView, styles.modalChat]}>
+                    <View style={{width: '100%', flex: 0, flexDirection: 'row', justifyContent: 'flex-end'}}>
+                        <View />
+                    <TouchableOpacity onPress={this.props.setModalVisible} style={{width: normaliseWidth(47)}}>
+                        <Text style={{ color: 'black', fontWeight: '500', width: normaliseWidth(47), textAlign: 'center'  }}>
+                            <MaterialCommunityIcons name="close" size={normaliseWidth(26)} color="black" />
+                        </Text>
+                    </TouchableOpacity>
+                    </View>
+                    <Text style={styles.modalText}>Hand Rankings</Text>
+                    <ScrollView style={{width: '100%'}}
+                    ref={ref => this.scrollView = ref}>
+                        {this.renderPokerHands(this.hands)}
+                    </ScrollView>
+                </View>
+            </View>
+        </Modal>
+        )
     }
 }
 
@@ -133,14 +206,6 @@ export class Help extends PureComponent {
     constructor(props) {
         super(props)
     }
-
-    // componentDidMount() {
-    //     console.log('Modal Help mounted')
-    // }
-
-    // componentDidUpdate() {
-    //     console.log('Modal Help updated')
-    // }
 
     showHandRankingsHelp = () => {
 
