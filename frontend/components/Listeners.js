@@ -69,7 +69,7 @@ export function playerListener(component){
             if (key === global.room.sessionId) {
                 //component.state.player_hand.push(card)
                 component.setState({ player_hand: [...component.state.player_hand, card] })
-                console.log('Added to player hand. No. of cards in hand: ', component.state.player_hand.length)
+                //console.log('Added to player hand. No. of cards in hand: ', component.state.player_hand.length)
             }
             
             card.onChange = (change) => {

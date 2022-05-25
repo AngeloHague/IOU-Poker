@@ -279,7 +279,7 @@ export const styles = StyleSheet.create({
         elevation: 5
     },
     modalText: {
-        fontSize: normaliseFont(16),
+        fontSize: normaliseFont(16), top: -normaliseHeight(25), marginBottom: -normaliseHeight(25), fontWeight: '500'
     },
     raiseAmount: {
         fontSize: normaliseFont(24),
@@ -287,6 +287,10 @@ export const styles = StyleSheet.create({
     modalHelp: {
         width: normaliseWidth(300),
         height: normaliseHeight(150),
+    },
+    modalHands: {
+        width: normaliseWidth(300),
+        height: normaliseHeight(400),
     },
     modalChat: {
         width: normaliseWidth(300),

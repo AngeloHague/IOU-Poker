@@ -91,7 +91,7 @@ export default class GameLobbyScreen extends Component {
 
     componentDidMount() {
         //global.room.send("message", 'mounted') // DEBUG PURPOSES
-        console.log('Lobby mounted')
+        //console.log('Lobby mounted')
         //loadLobbyInfo(this, global.room);
         //this.updatePlayers(global.room.state.players) // render players in current state
         if (global.room.state.game_started == true) this.setState({game_started: true})
