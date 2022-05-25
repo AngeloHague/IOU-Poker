@@ -6,6 +6,7 @@ import Background from '../../assets/background.svg'
 
 import { auth, db } from '../../firebase'
 import common from '../../styles/common'
+import { normaliseHeight } from '../../styles/normalize'
 
 export default class RegisterScreen extends Component {
     static navigationOptions = {
@@ -47,7 +48,7 @@ export default class RegisterScreen extends Component {
             >
             <Background position='absolute' style={{top: 0, left: 0}} preserveAspectRatio="xMinYMin slice"/>
                 <ScrollView>
-                <Text style={common.paddedGreeting}>{'Right then.\nLet\'s make you an account.'}</Text>
+                <Text style={[common.paddedGreeting, {marginTop: normaliseHeight(75)}]}>{'Right then.\nLet\'s make you an account.'}</Text>
 
                 <View style={common.errorMessage}>
                     {this.state.errorMessage && <Text style={common.error}>{this.state.errorMessage}</Text>}
