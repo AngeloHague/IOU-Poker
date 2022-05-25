@@ -27,13 +27,13 @@ export default class FlashDisplayer extends PureComponent {
         if (this.props.notifications) {
             //let notification = notifications[notifications.length-1]
             return (
-                <View style={{width: '100%', height: normaliseHeight(50)}}>
+                <View style={{width: '100%'}}>
                     {this.renderNotification(this.props.notifications)}
                 </View>
             )
         } else {
             return (
-                <View style={{width: '100%', height: normaliseHeight(50)}}>
+                <View style={{width: '100%'}}>
                     <Text></Text>
                 </View>
             )
