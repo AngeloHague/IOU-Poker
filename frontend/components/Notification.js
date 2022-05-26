@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react'
 import { Animated, View, Text } from 'react-native'
+import { styles } from '../styles/lobby';
 import { normaliseHeight, normaliseWidth } from '../styles/normalize';
 
 export default class Notification extends PureComponent {
@@ -37,7 +38,7 @@ export default class Notification extends PureComponent {
         if (this.props.notification) {
             let notification = this.props.notification
             return this.state.visible ? (
-                <Animated.View style={[{marginHorizontal: normaliseWidth(10), marginVertical: normaliseHeight(5), paddingVertical: normaliseHeight(5), backgroundColor: '#E9446A', borderRadius: 10, zIndex: 3, justifyContent: 'center', alignItems: 'center', alignSelf: 'center'}, {opacity: this.state.fadeAnimation}]}>
+                <Animated.View style={[styles.notification, {opacity: this.state.fadeAnimation}]}>
                     <Text style={{color: '#fff', fontWeight: 'bold', marginHorizontal: normaliseWidth(10)}}>{notification}</Text>
                 </Animated.View>
             ) : (<View></View>)
