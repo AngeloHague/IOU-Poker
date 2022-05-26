@@ -153,7 +153,6 @@ export function playerTurn (room: Room, state: GameState, client: Client, turn: 
   if(client.sessionId === state.current_player && state.round_over == false) {
       console.log(client.sessionId, ' is trying to ', turn.action, ' on their turn.')
     // player turn
-    //console.log(client.sessionId, ' is trying to performing an action...')
     if (turn.action == 'fold') {
       // FOLD
       console.log(client.sessionId, " chose to fold")
@@ -161,11 +160,6 @@ export function playerTurn (room: Room, state: GameState, client: Client, turn: 
     } else if (turn.action == 'check') {
       console.log(client.sessionId, " chose to check")
       playerCheck(room, state, state.players.get(client.sessionId))
-    // } else if (turn.action == 'bet') {
-    //   console.log(client.sessionId, " chose to bet: ", turn.amount)
-    //   //bet code
-    //   playerBet(room, state, client, turn.amount)
-    // }
     } else if (turn.action == 'raise') {
       console.log(client.sessionId, " chose to raise: ", turn.amount)
       //bet code
@@ -682,8 +676,6 @@ export function announceWhoseTurn(room: Room, state: GameState) {
 export function sendMessage(room: Room, state: GameState, contents: string, sender: string, is_notif: boolean) {
   room.broadcast('message', {index: state.chat_idx, message: contents, sender: sender, isNotification: is_notif})
   state.chat_idx+=1
-  // sendMessage(room, state, 'Chat', client.sessionId, false)
-  // sendMessage(room, state, 'Notification', 'server', true)
 }
 
 export function dealCards(state: GameState) {

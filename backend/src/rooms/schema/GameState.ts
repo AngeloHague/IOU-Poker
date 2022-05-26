@@ -233,8 +233,6 @@ export function determineWinners(state: GameState) {
 }
 
 export function findBestHand(communityCards: Card[], player: Player) {
-  //let hand = templateHand()
-  //let playerHand = player.cards
   let bestHand = new Hand(player.sessionId)
   let cards: Card[] = []
   let values: String[] = [] // DEBUG PURPOSES

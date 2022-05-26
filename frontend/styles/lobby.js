@@ -257,6 +257,9 @@ export const styles = StyleSheet.create({
         marginLeft: normaliseWidth(5),
         marginRight: normaliseWidth(30),
     },
+    notification: {
+        marginHorizontal: normaliseWidth(10), marginVertical: normaliseHeight(5), paddingVertical: normaliseHeight(5), backgroundColor: '#E9446A', borderRadius: 10, zIndex: 3, justifyContent: 'center', alignItems: 'center', alignSelf: 'center'
+    },
     centeredView: {
         flex: 1,
         justifyContent: "center",

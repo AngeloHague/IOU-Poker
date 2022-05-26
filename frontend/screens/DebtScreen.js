@@ -70,7 +70,7 @@ class Debt extends Component {
         if (!this.state.complete)
         Alert.alert(
         "Mark as Complete?",
-        "This will be moved to your Settled Debts when both players have marked it as compelte.",
+        "This will be moved to your Settled Debts when both players have marked it as complete.",
         [
             {
             text: "No",
